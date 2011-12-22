@@ -1,6 +1,9 @@
 
-TESTS = $(shell find test -type f ! -name 'common.js')
+TESTS = $(shell find test/*.js -depth 1 -type f ! -name 'common.js')
 REPORTER = dot
+
+build:
+	@./node_modules/.bin/browserbuild -g eio -f engine.io.js -m engine.io-client lib/
 
 test:
 	@./node_modules/.bin/mocha \
@@ -9,7 +12,7 @@ test:
 		--growl \
 		$(TESTS)
 
-build:
-	@./node_modules/.bin/browserbuild -g eio -f engine.js -m engine.io-client lib/
+test-browser:
+	./node_modules/.bin/serve test/
 
 .PHONY: test
