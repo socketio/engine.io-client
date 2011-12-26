@@ -1,5 +1,5 @@
 
-TESTS = $(shell find test/*.js -depth 1 -type f ! -name 'common.js')
+TESTS = $(shell find test -depth 1 -name '*.js' -type f ! -name 'common.js')
 REPORTER = dot
 
 build:
