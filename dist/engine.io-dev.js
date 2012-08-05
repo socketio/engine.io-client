@@ -1824,11 +1824,14 @@ function empty () { }
 
 function JSONPPolling (opts) {
   Polling.call(this, opts);
+
   // callback identifier
   this.index = index++;
 
   // create jsonp global
-  callbacks = global.___eio = [];
+  if (!callbacks) {
+    callbacks = global.___eio = [];
+  }
 
   // add callback to jsonp global
   var self = this;
