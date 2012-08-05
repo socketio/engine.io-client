@@ -1,420 +1,4 @@
-(function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("engine.io-client.js", function(module, exports, require, global){
-
-/**
- * Client version.
- *
- * @api public.
- */
-
-exports.version = '0.1.2';
-
-/**
- * Protocol version.
- *
- * @api public.
- */
-
-exports.protocol = 1;
-
-/**
- * Utils.
- *
- * @api public
- */
-
-exports.util = require('./util');
-
-/**
- * Parser.
- *
- * @api public
- */
-
-exports.parser = require('./parser');
-
-/**
- * Socket constructor.
- *
- * @api public.
- */
-
-exports.Socket = require('./socket');
-
-/**
- * Export EventEmitter.
- */
-
-exports.EventEmitter = require('./event-emitter')
-
-/**
- * Export Transport.
- */
-
-exports.Transport = require('./transport');
-
-/**
- * Export transports
- */
-
-exports.transports = require('./transports');
-
-});require.register("event-emitter.js", function(module, exports, require, global){
-
-/**
- * Module exports.
- */
-
-module.exports = EventEmitter;
-
-/**
- * Event emitter constructor.
- *
- * @api public.
- */
-
-function EventEmitter () {};
-
-/**
- * Adds a listener
- *
- * @api public
- */
-
-EventEmitter.prototype.on = function (name, fn) {
-  if (!this.$events) {
-    this.$events = {};
-  }
-
-  if (!this.$events[name]) {
-    this.$events[name] = fn;
-  } else if (isArray(this.$events[name])) {
-    this.$events[name].push(fn);
-  } else {
-    this.$events[name] = [this.$events[name], fn];
-  }
-
-  return this;
-};
-
-EventEmitter.prototype.addListener = EventEmitter.prototype.on;
-
-/**
- * Adds a volatile listener.
- *
- * @api public
- */
-
-EventEmitter.prototype.once = function (name, fn) {
-  var self = this;
-
-  function on () {
-    self.removeListener(name, on);
-    fn.apply(this, arguments);
-  };
-
-  on.listener = fn;
-  this.on(name, on);
-
-  return this;
-};
-
-/**
- * Removes a listener.
- *
- * @api public
- */
-
-EventEmitter.prototype.removeListener = function (name, fn) {
-  if (this.$events && this.$events[name]) {
-    var list = this.$events[name];
-
-    if (isArray(list)) {
-      var pos = -1;
-
-      for (var i = 0, l = list.length; i < l; i++) {
-        if (list[i] === fn || (list[i].listener && list[i].listener === fn)) {
-          pos = i;
-          break;
-        }
-      }
-
-      if (pos < 0) {
-        return this;
-      }
-
-      list.splice(pos, 1);
-
-      if (!list.length) {
-        delete this.$events[name];
-      }
-    } else if (list === fn || (list.listener && list.listener === fn)) {
-      delete this.$events[name];
-    }
-  }
-
-  return this;
-};
-
-/**
- * Removes all listeners for an event.
- *
- * @api public
- */
-
-EventEmitter.prototype.removeAllListeners = function (name) {
-  if (name === undefined) {
-    this.$events = {};
-    return this;
-  }
-
-  if (this.$events && this.$events[name]) {
-    this.$events[name] = null;
-  }
-
-  return this;
-};
-
-/**
- * Gets all listeners for a certain event.
- *
- * @api publci
- */
-
-EventEmitter.prototype.listeners = function (name) {
-  if (!this.$events) {
-    this.$events = {};
-  }
-
-  if (!this.$events[name]) {
-    this.$events[name] = [];
-  }
-
-  if (!isArray(this.$events[name])) {
-    this.$events[name] = [this.$events[name]];
-  }
-
-  return this.$events[name];
-};
-
-/**
- * Emits an event.
- *
- * @api public
- */
-
-EventEmitter.prototype.emit = function (name) {
-  if (!this.$events) {
-    return false;
-  }
-
-  var handler = this.$events[name];
-
-  if (!handler) {
-    return false;
-  }
-
-  var args = Array.prototype.slice.call(arguments, 1);
-
-  if ('function' == typeof handler) {
-    handler.apply(this, args);
-  } else if (isArray(handler)) {
-    var listeners = handler.slice();
-
-    for (var i = 0, l = listeners.length; i < l; i++) {
-      listeners[i].apply(this, args);
-    }
-  } else {
-    return false;
-  }
-
-  return true;
-};
-
-/**
- * Checks for Array type.
- *
- * @param {Object} object
- * @api private
- */
-
-function isArray (obj) {
-  return '[object Array]' == Object.prototype.toString.call(obj);
-};
-
-/**
- * Compatibility with WebSocket
- */
-
-EventEmitter.prototype.addEventListener = EventEmitter.prototype.on;
-EventEmitter.prototype.removeEventListener = EventEmitter.prototype.removeListener;
-EventEmitter.prototype.dispatchEvent = EventEmitter.prototype.emit;
-
-});require.register("parser.js", function(module, exports, require, global){
-/**
- * Module dependencies.
- */
-
-var util = require('./util')
-
-/**
- * Packet types.
- */
-
-var packets = exports.packets = {
-    open:     0    // non-ws
-  , close:    1    // non-ws
-  , ping:     2
-  , pong:     3
-  , message:  4
-  , upgrade:  5
-  , noop:     6
-};
-
-var packetslist = util.keys(packets);
-
-/**
- * Premade error packet.
- */
-
-var err = { type: 'error', data: 'parser error' }
-
-/**
- * Encodes a packet.
- *
- *     <packet type id> [ `:` <data> ]
- *
- * Example:
- *
- *     5:hello world
- *     3
- *     4
- *
- * @api private
- */
-
-exports.encodePacket = function (packet) {
-  var encoded = packets[packet.type]
-
-  // data fragment is optional
-  if (undefined !== packet.data) {
-    encoded += String(packet.data);
-  }
-
-  return '' + encoded;
-};
-
-/**
- * Decodes a packet.
- *
- * @return {Object} with `type` and `data` (if any)
- * @api private
- */
-
-exports.decodePacket = function (data) {
-  var type = data.charAt(0);
-
-  if (Number(type) != type || !packetslist[type]) {
-    return err;
-  }
-
-  if (data.length > 1) {
-    return { type: packetslist[type], data: data.substring(1) };
-  } else {
-    return { type: packetslist[type] };
-  }
-};
-
-/**
- * Encodes multiple messages (payload).
- * 
- *     <length>:data
- *
- * Example:
- *
- *     11:hello world2:hi
- *
- * @param {Array} packets
- * @api private
- */
-
-exports.encodePayload = function (packets) {
-  if (!packets.length) {
-    return '0:';
-  }
-
-  var encoded = ''
-    , message
-
-  for (var i = 0, l = packets.length; i < l; i++) {
-    message = exports.encodePacket(packets[i]);
-    encoded += message.length + ':' + message;
-  }
-
-  return encoded;
-};
-
-/*
- * Decodes data when a payload is maybe expected.
- *
- * @param {String} data
- * @return {Array} packets
- * @api public
- */
-
-exports.decodePayload = function (data) {
-  if (data == '') {
-    // parser error - ignoring payload
-    return [err];
-  }
-
-  var packets = []
-    , length = ''
-    , n, msg, packet
-
-  for (var i = 0, l = data.length; i < l; i++) {
-    var chr = data.charAt(i)
-
-    if (':' != chr) {
-      length += chr;
-    } else {
-      if ('' == length || (length != (n = Number(length)))) {
-        // parser error - ignoring payload
-        return [err];
-      }
-
-      msg = data.substr(i + 1, n);
-
-      if (length != msg.length) {
-        // parser error - ignoring payload
-        return [err];
-      }
-
-      if (msg.length) {
-        packet = exports.decodePacket(msg);
-
-        if (err.type == packet.type && err.data == packet.data) {
-          // parser error in individual packet - ignoring payload
-          return [err];
-        }
-
-        packets.push(packet);
-      }
-
-      // advance cursor
-      i += n;
-      length = ''
-    }
-  }
-
-  if (length != '') {
-    // parser error - ignoring payload
-    return [err];
-  }
-
-  return packets;
-};
-
-});require.register("socket.js", function(module, exports, require, global){
+(function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("socket.js", function(module, exports, require, global){
 /**
  * Module dependencies.
  */
@@ -807,6 +391,171 @@ function rnd () {
   return String(Math.random()).substr(5) + String(Math.random()).substr(5);
 }
 
+});require.register("parser.js", function(module, exports, require, global){
+/**
+ * Module dependencies.
+ */
+
+var util = require('./util')
+
+/**
+ * Packet types.
+ */
+
+var packets = exports.packets = {
+    open:     0    // non-ws
+  , close:    1    // non-ws
+  , ping:     2
+  , pong:     3
+  , message:  4
+  , upgrade:  5
+  , noop:     6
+};
+
+var packetslist = util.keys(packets);
+
+/**
+ * Premade error packet.
+ */
+
+var err = { type: 'error', data: 'parser error' }
+
+/**
+ * Encodes a packet.
+ *
+ *     <packet type id> [ `:` <data> ]
+ *
+ * Example:
+ *
+ *     5:hello world
+ *     3
+ *     4
+ *
+ * @api private
+ */
+
+exports.encodePacket = function (packet) {
+  var encoded = packets[packet.type]
+
+  // data fragment is optional
+  if (undefined !== packet.data) {
+    encoded += String(packet.data);
+  }
+
+  return '' + encoded;
+};
+
+/**
+ * Decodes a packet.
+ *
+ * @return {Object} with `type` and `data` (if any)
+ * @api private
+ */
+
+exports.decodePacket = function (data) {
+  var type = data.charAt(0);
+
+  if (Number(type) != type || !packetslist[type]) {
+    return err;
+  }
+
+  if (data.length > 1) {
+    return { type: packetslist[type], data: data.substring(1) };
+  } else {
+    return { type: packetslist[type] };
+  }
+};
+
+/**
+ * Encodes multiple messages (payload).
+ * 
+ *     <length>:data
+ *
+ * Example:
+ *
+ *     11:hello world2:hi
+ *
+ * @param {Array} packets
+ * @api private
+ */
+
+exports.encodePayload = function (packets) {
+  if (!packets.length) {
+    return '0:';
+  }
+
+  var encoded = ''
+    , message
+
+  for (var i = 0, l = packets.length; i < l; i++) {
+    message = exports.encodePacket(packets[i]);
+    encoded += message.length + ':' + message;
+  }
+
+  return encoded;
+};
+
+/*
+ * Decodes data when a payload is maybe expected.
+ *
+ * @param {String} data
+ * @return {Array} packets
+ * @api public
+ */
+
+exports.decodePayload = function (data) {
+  if (data == '') {
+    // parser error - ignoring payload
+    return [err];
+  }
+
+  var packets = []
+    , length = ''
+    , n, msg, packet
+
+  for (var i = 0, l = data.length; i < l; i++) {
+    var chr = data.charAt(i)
+
+    if (':' != chr) {
+      length += chr;
+    } else {
+      if ('' == length || (length != (n = Number(length)))) {
+        // parser error - ignoring payload
+        return [err];
+      }
+
+      msg = data.substr(i + 1, n);
+
+      if (length != msg.length) {
+        // parser error - ignoring payload
+        return [err];
+      }
+
+      if (msg.length) {
+        packet = exports.decodePacket(msg);
+
+        if (err.type == packet.type && err.data == packet.data) {
+          // parser error in individual packet - ignoring payload
+          return [err];
+        }
+
+        packets.push(packet);
+      }
+
+      // advance cursor
+      i += n;
+      length = ''
+    }
+  }
+
+  if (length != '') {
+    // parser error - ignoring payload
+    return [err];
+  }
+
+  return packets;
+};
+
 });require.register("transport.js", function(module, exports, require, global){
 
 /**
@@ -948,6 +697,713 @@ Transport.prototype.onPacket = function (packet) {
 Transport.prototype.onClose = function () {
   this.readyState = 'closed';
   this.emit('close');
+};
+
+});require.register("util.js", function(module, exports, require, global){
+
+/**
+ * Status of page load.
+ */
+
+var pageLoaded = false;
+
+/**
+ * Inheritance.
+ *
+ * @param {Function} ctor a
+ * @param {Function} ctor b
+ * @api private
+ */
+
+exports.inherits = function inherits (a, b) {
+  function c () { }
+  c.prototype = b.prototype;
+  a.prototype = new c;
+};
+
+/**
+ * Object.keys
+ */
+
+exports.keys = Object.keys || function (obj) {
+  var ret = []
+    , has = Object.prototype.hasOwnProperty
+
+  for (var i in obj) {
+    if (has.call(obj, i)) {
+      ret.push(i);
+    }
+  }
+
+  return ret;
+};
+
+/**
+ * Adds an event.
+ *
+ * @api private
+ */
+
+exports.on = function (element, event, fn, capture) {
+  if (element.attachEvent) {
+    element.attachEvent('on' + event, fn);
+  } else if (element.addEventListener) {
+    element.addEventListener(event, fn, capture);
+  }
+};
+
+/**
+ * Load utility.
+ *
+ * @api private
+ */
+
+exports.load = function (fn) {
+  if (global.document && document.readyState === 'complete' || pageLoaded) {
+    return fn();
+  }
+
+  exports.on(global, 'load', fn, false);
+};
+
+/**
+ * Change the internal pageLoaded value.
+ */
+
+if ('undefined' != typeof window) {
+  exports.load(function () {
+    pageLoaded = true;
+  });
+}
+
+/**
+ * Defers a function to ensure a spinner is not displayed by the browser.
+ *
+ * @param {Function} fn
+ * @api private
+ */
+
+exports.defer = function (fn) {
+  if (!exports.ua.webkit || 'undefined' != typeof importScripts) {
+    return fn();
+  }
+
+  exports.load(function () {
+    setTimeout(fn, 100);
+  });
+};
+
+/**
+ * JSON parse.
+ *
+ * @see Based on jQuery#parseJSON (MIT) and JSON2
+ * @api private
+ */
+
+var rvalidchars = /^[\],:{}\s]*$/
+  , rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g
+  , rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g
+  , rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g
+  , rtrimLeft = /^\s+/
+  , rtrimRight = /\s+$/
+
+exports.parseJSON = function (data) {
+  if ('string' != typeof data || !data) {
+    return null;
+  }
+
+  data = data.replace(rtrimLeft, '').replace(rtrimRight, '');
+
+  // Attempt to parse using the native JSON parser first
+  if (global.JSON && JSON.parse) {
+    return JSON.parse(data);
+  }
+
+  if (rvalidchars.test(data.replace(rvalidescape, '@')
+      .replace(rvalidtokens, ']')
+      .replace(rvalidbraces, ''))) {
+    return (new Function('return ' + data))();
+  }
+};
+
+/**
+ * UA / engines detection namespace.
+ *
+ * @namespace
+ */
+
+exports.ua = {};
+
+/**
+ * Whether the UA supports CORS for XHR.
+ *
+ * @api private
+ */
+
+exports.ua.hasCORS = 'undefined' != typeof XMLHttpRequest && (function () {
+  try {
+    var a = new XMLHttpRequest();
+  } catch (e) {
+    return false;
+  }
+
+  return a.withCredentials != undefined;
+})();
+
+/**
+ * Detect webkit.
+ *
+ * @api private
+ */
+
+exports.ua.webkit = 'undefined' != typeof navigator && 
+  /webkit/i.test(navigator.userAgent);
+
+/**
+ * Detect gecko.
+ *
+ * @api private
+ */
+
+exports.ua.gecko = 'undefined' != typeof navigator && 
+  /gecko/i.test(navigator.userAgent);
+
+/**
+ * Detect android;
+ */
+
+exports.ua.android = 'undefined' != typeof navigator && 
+  /android/i.test(navigator.userAgent);
+
+/**
+ * XHR request helper.
+ *
+ * @param {Boolean} whether we need xdomain
+ * @api private
+ */
+
+exports.request = function request (xdomain) {
+
+
+
+
+
+  if (xdomain && 'undefined' != typeof XDomainRequest) {
+    return new XDomainRequest();
+  }
+
+  // XMLHttpRequest can be disabled on IE
+  try {
+    if ('undefined' != typeof XMLHttpRequest && (!xdomain || exports.ua.hasCORS)) {
+      return new XMLHttpRequest();
+    }
+  } catch (e) { }
+
+  if (!xdomain) {
+    try {
+      return new ActiveXObject('Microsoft.XMLHTTP');
+    } catch(e) { }
+  }
+};
+
+/**
+ * Parses an URI
+ *
+ * @author Steven Levithan <stevenlevithan.com> (MIT license)
+ * @api private
+ */
+
+var re = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+
+var parts = [
+    'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host'
+  , 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
+];
+
+exports.parseUri = function (str) {
+  var m = re.exec(str || '')
+    , uri = {}
+    , i = 14;
+
+  while (i--) {
+    uri[parts[i]] = m[i] || '';
+  }
+
+  return uri;
+};
+
+/**
+ * Compiles a querystring
+ *
+ * @param {Object} 
+ * @api private
+ */
+
+exports.qs = function (obj) {
+  var str = '';
+
+  for (var i in obj) {
+    if (obj.hasOwnProperty(i)) {
+      if (str.length) str += '&';
+      str += i + '=' + encodeURIComponent(obj[i]);
+    }
+  }
+
+  return str;
+};
+
+});require.register("event-emitter.js", function(module, exports, require, global){
+
+/**
+ * Module exports.
+ */
+
+module.exports = EventEmitter;
+
+/**
+ * Event emitter constructor.
+ *
+ * @api public.
+ */
+
+function EventEmitter () {};
+
+/**
+ * Adds a listener
+ *
+ * @api public
+ */
+
+EventEmitter.prototype.on = function (name, fn) {
+  if (!this.$events) {
+    this.$events = {};
+  }
+
+  if (!this.$events[name]) {
+    this.$events[name] = fn;
+  } else if (isArray(this.$events[name])) {
+    this.$events[name].push(fn);
+  } else {
+    this.$events[name] = [this.$events[name], fn];
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+
+/**
+ * Adds a volatile listener.
+ *
+ * @api public
+ */
+
+EventEmitter.prototype.once = function (name, fn) {
+  var self = this;
+
+  function on () {
+    self.removeListener(name, on);
+    fn.apply(this, arguments);
+  };
+
+  on.listener = fn;
+  this.on(name, on);
+
+  return this;
+};
+
+/**
+ * Removes a listener.
+ *
+ * @api public
+ */
+
+EventEmitter.prototype.removeListener = function (name, fn) {
+  if (this.$events && this.$events[name]) {
+    var list = this.$events[name];
+
+    if (isArray(list)) {
+      var pos = -1;
+
+      for (var i = 0, l = list.length; i < l; i++) {
+        if (list[i] === fn || (list[i].listener && list[i].listener === fn)) {
+          pos = i;
+          break;
+        }
+      }
+
+      if (pos < 0) {
+        return this;
+      }
+
+      list.splice(pos, 1);
+
+      if (!list.length) {
+        delete this.$events[name];
+      }
+    } else if (list === fn || (list.listener && list.listener === fn)) {
+      delete this.$events[name];
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Removes all listeners for an event.
+ *
+ * @api public
+ */
+
+EventEmitter.prototype.removeAllListeners = function (name) {
+  if (name === undefined) {
+    this.$events = {};
+    return this;
+  }
+
+  if (this.$events && this.$events[name]) {
+    this.$events[name] = null;
+  }
+
+  return this;
+};
+
+/**
+ * Gets all listeners for a certain event.
+ *
+ * @api publci
+ */
+
+EventEmitter.prototype.listeners = function (name) {
+  if (!this.$events) {
+    this.$events = {};
+  }
+
+  if (!this.$events[name]) {
+    this.$events[name] = [];
+  }
+
+  if (!isArray(this.$events[name])) {
+    this.$events[name] = [this.$events[name]];
+  }
+
+  return this.$events[name];
+};
+
+/**
+ * Emits an event.
+ *
+ * @api public
+ */
+
+EventEmitter.prototype.emit = function (name) {
+  if (!this.$events) {
+    return false;
+  }
+
+  var handler = this.$events[name];
+
+  if (!handler) {
+    return false;
+  }
+
+  var args = Array.prototype.slice.call(arguments, 1);
+
+  if ('function' == typeof handler) {
+    handler.apply(this, args);
+  } else if (isArray(handler)) {
+    var listeners = handler.slice();
+
+    for (var i = 0, l = listeners.length; i < l; i++) {
+      listeners[i].apply(this, args);
+    }
+  } else {
+    return false;
+  }
+
+  return true;
+};
+
+/**
+ * Checks for Array type.
+ *
+ * @param {Object} object
+ * @api private
+ */
+
+function isArray (obj) {
+  return '[object Array]' == Object.prototype.toString.call(obj);
+};
+
+/**
+ * Compatibility with WebSocket
+ */
+
+EventEmitter.prototype.addEventListener = EventEmitter.prototype.on;
+EventEmitter.prototype.removeEventListener = EventEmitter.prototype.removeListener;
+EventEmitter.prototype.dispatchEvent = EventEmitter.prototype.emit;
+
+});require.register("engine.io-client.js", function(module, exports, require, global){
+
+/**
+ * Client version.
+ *
+ * @api public.
+ */
+
+exports.version = '0.1.2';
+
+/**
+ * Protocol version.
+ *
+ * @api public.
+ */
+
+exports.protocol = 1;
+
+/**
+ * Utils.
+ *
+ * @api public
+ */
+
+exports.util = require('./util');
+
+/**
+ * Parser.
+ *
+ * @api public
+ */
+
+exports.parser = require('./parser');
+
+/**
+ * Socket constructor.
+ *
+ * @api public.
+ */
+
+exports.Socket = require('./socket');
+
+/**
+ * Export EventEmitter.
+ */
+
+exports.EventEmitter = require('./event-emitter')
+
+/**
+ * Export Transport.
+ */
+
+exports.Transport = require('./transport');
+
+/**
+ * Export transports
+ */
+
+exports.transports = require('./transports');
+
+});require.register("transports/polling.js", function(module, exports, require, global){
+/**
+ * Module dependencies.
+ */
+
+var Transport = require('../transport')
+  , util = require('../util')
+  , parser = require('../parser')
+
+/**
+ * Module exports.
+ */
+
+module.exports = Polling;
+
+/**
+ * Polling interface.
+ *
+ * @param {Object} opts
+ * @api private
+ */
+
+function Polling (opts) {
+  Transport.call(this, opts);
+}
+
+/**
+ * Inherits from Transport.
+ */
+
+util.inherits(Polling, Transport);
+
+/**
+ * Transport name.
+ */
+
+Polling.prototype.name = 'polling';
+
+/**
+ * Opens the socket (triggers polling). We write a PING message to determine
+ * when the transport is open.
+ *
+ * @api private
+ */
+
+Polling.prototype.doOpen = function () {
+  this.poll();
+};
+
+/**
+ * Pauses polling.
+ *
+ * @param {Function} callback upon buffers are flushed and transport is paused
+ * @api private
+ */
+
+Polling.prototype.pause = function (onPause) {
+  var pending = 0
+    , self = this
+
+  this.readyState = 'pausing';
+
+  function pause () {
+    // debug: paused
+    self.readyState = 'paused';
+    onPause();
+  }
+
+  if (this.polling || !this.writable) {
+    var total = 0;
+
+    if (this.polling) {
+      // debug: we are currently polling - waiting to pause
+      total++;
+      this.once('poll', function () {
+        // debug: pre-pause polling complete
+        --total || pause();
+      });
+    }
+
+    if (!this.writable) {
+      // debug: we are currently writing - waiting to pause
+      total++;
+      this.once('drain', function () {
+        // debug: pre-pause writing complete
+        --total || pause();
+      });
+    }
+  } else {
+    pause();
+  }
+};
+
+/**
+ * Starts polling cycle.
+ *
+ * @api public
+ */
+
+Polling.prototype.poll = function () {
+  // debug: polling
+  this.polling = true;
+  this.doPoll();
+};
+
+/**
+ * Overloads onData to detect payloads.
+ *
+ * @api private
+ */
+
+Polling.prototype.onData = function (data) {
+  // debug: polling got, data
+  // decode payload
+  var packets = parser.decodePayload(data);
+
+  for (var i = 0, l = packets.length; i < l; i++) {
+    // if its the first message we consider the trnasport open
+    if ('opening' == this.readyState) {
+      this.onOpen();
+    }
+
+    // if its a close packet, we close the ongoing requests
+    if ('close' == packets[i].type) {
+      this.onClose();
+      return;
+    }
+
+    // otherwise bypass onData and handle the message
+    this.onPacket(packets[i]);
+  }
+
+  // if we got data we're not polling
+  this.polling = false;
+  this.emit('poll');
+
+  if ('open' == this.readyState) {
+    this.poll();
+  } else {
+    // debug: ignoring poll - transport state "%s", this.readyState
+  }
+};
+
+/**
+ * For polling, send a close packet.
+ *
+ * @api private
+ */
+
+Polling.prototype.doClose = function () {
+  // debug: sending close packet
+  this.send([{ type: 'close' }]);
+};
+
+/**
+ * Writes a packets payload.
+ *
+ * @param {Array} data packets
+ * @param {Function} drain callback
+ * @api private
+ */
+
+Polling.prototype.write = function (packets) {
+  var self = this;
+  this.writable = false;
+  this.doWrite(parser.encodePayload(packets), function () {
+    self.writable = true;
+    self.emit('drain');
+  });
+};
+
+/**
+ * Generates uri for connection.
+ *
+ * @api private
+ */
+
+Polling.prototype.uri = function () {
+  var query = this.query || {}
+    , schema = this.secure ? 'https' : 'http'
+    , port = ''
+
+  // cache busting is forced for IE / android
+  if (global.ActiveXObject || util.ua.android || this.timestampRequests) {
+    query[this.timestampParam] = +new Date;
+  }
+
+  query = util.qs(query);
+
+  // avoid port if default for schema
+  if (this.port && (('https' == schema && this.port != 443)
+    || ('http' == schema && this.port != 80))) {
+    port = ':' + this.port;
+  }
+
+  // prepend ? to query
+  if (query.length) {
+    query = '?' + query;
+  }
+
+  return schema + '://' + this.host + port + this.path + query;
 };
 
 });require.register("transports/flashsocket.js", function(module, exports, require, global){
@@ -1200,50 +1656,7 @@ function load (arr, fn) {
   process(0);
 };
 
-});require.register("transports/index.js", function(module, exports, require, global){
-
-/**
- * Module dependencies
- */
-
-var XHR = require('./polling-xhr')
-  , JSONP = require('./polling-jsonp')
-  , websocket = require('./websocket')
-  , flashsocket = require('./flashsocket')
-  , util = require('../util')
-
-/**
- * Export transports.
- */
-
-exports.polling = polling;
-exports.websocket = websocket;
-exports.flashsocket = flashsocket;
-
-/**
- * Polling transport polymorphic constructor.
- * Decides on xhr vs jsonp based on feature detection.
- *
- * @api private
- */
-
-function polling (opts) {
-  var xd = false;
-
-  if (global.location) {
-    xd = opts.host != global.location.hostname
-      || global.location.port != opts.port;
-  }
-
-  if (util.request(xd) && !opts.forceJSONP) {
-    return new XHR(opts);
-  } else {
-    return new JSONP(opts);
-  }
-};
-
 });require.register("transports/polling-jsonp.js", function(module, exports, require, global){
-
 /**
  * Module requirements.
  */
@@ -1267,7 +1680,7 @@ var rNewline = /\n/g
  * Global JSONP callbacks.
  */
 
-var callbacks = global.___eio = [];
+var callbacks;
 
 /**
  * Callbacks count.
@@ -1290,9 +1703,11 @@ function empty () { }
 
 function JSONPPolling (opts) {
   Polling.call(this, opts);
-
   // callback identifier
   this.index = index++;
+
+  // create jsonp global
+  callbacks = global.___eio = [];
 
   // add callback to jsonp global
   var self = this;
@@ -1728,207 +2143,46 @@ if (global.ActiveXObject) {
   });
 }
 
-});require.register("transports/polling.js", function(module, exports, require, global){
+});require.register("transports/index.js", function(module, exports, require, global){
+
 /**
- * Module dependencies.
+ * Module dependencies
  */
 
-var Transport = require('../transport')
+var XHR = require('./polling-xhr')
+  , JSONP = require('./polling-jsonp')
+  , websocket = require('./websocket')
+  , flashsocket = require('./flashsocket')
   , util = require('../util')
-  , parser = require('../parser')
 
 /**
- * Module exports.
+ * Export transports.
  */
 
-module.exports = Polling;
+exports.polling = polling;
+exports.websocket = websocket;
+exports.flashsocket = flashsocket;
 
 /**
- * Polling interface.
- *
- * @param {Object} opts
- * @api private
- */
-
-function Polling (opts) {
-  Transport.call(this, opts);
-}
-
-/**
- * Inherits from Transport.
- */
-
-util.inherits(Polling, Transport);
-
-/**
- * Transport name.
- */
-
-Polling.prototype.name = 'polling';
-
-/**
- * Opens the socket (triggers polling). We write a PING message to determine
- * when the transport is open.
+ * Polling transport polymorphic constructor.
+ * Decides on xhr vs jsonp based on feature detection.
  *
  * @api private
  */
 
-Polling.prototype.doOpen = function () {
-  this.poll();
-};
+function polling (opts) {
+  var xd = false;
 
-/**
- * Pauses polling.
- *
- * @param {Function} callback upon buffers are flushed and transport is paused
- * @api private
- */
-
-Polling.prototype.pause = function (onPause) {
-  var pending = 0
-    , self = this
-
-  this.readyState = 'pausing';
-
-  function pause () {
-    // debug: paused
-    self.readyState = 'paused';
-    onPause();
+  if (global.location) {
+    xd = opts.host != global.location.hostname
+      || global.location.port != opts.port;
   }
 
-  if (this.polling || !this.writable) {
-    var total = 0;
-
-    if (this.polling) {
-      // debug: we are currently polling - waiting to pause
-      total++;
-      this.once('poll', function () {
-        // debug: pre-pause polling complete
-        --total || pause();
-      });
-    }
-
-    if (!this.writable) {
-      // debug: we are currently writing - waiting to pause
-      total++;
-      this.once('drain', function () {
-        // debug: pre-pause writing complete
-        --total || pause();
-      });
-    }
+  if (util.request(xd) && !opts.forceJSONP) {
+    return new XHR(opts);
   } else {
-    pause();
+    return new JSONP(opts);
   }
-};
-
-/**
- * Starts polling cycle.
- *
- * @api public
- */
-
-Polling.prototype.poll = function () {
-  // debug: polling
-  this.polling = true;
-  this.doPoll();
-};
-
-/**
- * Overloads onData to detect payloads.
- *
- * @api private
- */
-
-Polling.prototype.onData = function (data) {
-  // debug: polling got, data
-  // decode payload
-  var packets = parser.decodePayload(data);
-
-  for (var i = 0, l = packets.length; i < l; i++) {
-    // if its the first message we consider the trnasport open
-    if ('opening' == this.readyState) {
-      this.onOpen();
-    }
-
-    // if its a close packet, we close the ongoing requests
-    if ('close' == packets[i].type) {
-      this.onClose();
-      return;
-    }
-
-    // otherwise bypass onData and handle the message
-    this.onPacket(packets[i]);
-  }
-
-  // if we got data we're not polling
-  this.polling = false;
-  this.emit('poll');
-
-  if ('open' == this.readyState) {
-    this.poll();
-  } else {
-    // debug: ignoring poll - transport state "%s", this.readyState
-  }
-};
-
-/**
- * For polling, send a close packet.
- *
- * @api private
- */
-
-Polling.prototype.doClose = function () {
-  // debug: sending close packet
-  this.send([{ type: 'close' }]);
-};
-
-/**
- * Writes a packets payload.
- *
- * @param {Array} data packets
- * @param {Function} drain callback
- * @api private
- */
-
-Polling.prototype.write = function (packets) {
-  var self = this;
-  this.writable = false;
-  this.doWrite(parser.encodePayload(packets), function () {
-    self.writable = true;
-    self.emit('drain');
-  });
-};
-
-/**
- * Generates uri for connection.
- *
- * @api private
- */
-
-Polling.prototype.uri = function () {
-  var query = this.query || {}
-    , schema = this.secure ? 'https' : 'http'
-    , port = ''
-
-  // cache busting is forced for IE / android
-  if (global.ActiveXObject || util.ua.android || this.timestampRequests) {
-    query[this.timestampParam] = +new Date;
-  }
-
-  query = util.qs(query);
-
-  // avoid port if default for schema
-  if (this.port && (('https' == schema && this.port != 443)
-    || ('http' == schema && this.port != 80))) {
-    port = ':' + this.port;
-  }
-
-  // prepend ? to query
-  if (query.length) {
-    query = '?' + query;
-  }
-
-  return schema + '://' + this.host + port + this.path + query;
 };
 
 });require.register("transports/websocket.js", function(module, exports, require, global){
@@ -2085,258 +2339,5 @@ function ws () {
   return global.WebSocket || global.MozWebSocket;
 }
 
-});require.register("util.js", function(module, exports, require, global){
-
-/**
- * Status of page load.
- */
-
-var pageLoaded = false;
-
-/**
- * Inheritance.
- *
- * @param {Function} ctor a
- * @param {Function} ctor b
- * @api private
- */
-
-exports.inherits = function inherits (a, b) {
-  function c () { }
-  c.prototype = b.prototype;
-  a.prototype = new c;
-};
-
-/**
- * Object.keys
- */
-
-exports.keys = Object.keys || function (obj) {
-  var ret = []
-    , has = Object.prototype.hasOwnProperty
-
-  for (var i in obj) {
-    if (has.call(obj, i)) {
-      ret.push(i);
-    }
-  }
-
-  return ret;
-};
-
-/**
- * Adds an event.
- *
- * @api private
- */
-
-exports.on = function (element, event, fn, capture) {
-  if (element.attachEvent) {
-    element.attachEvent('on' + event, fn);
-  } else if (element.addEventListener) {
-    element.addEventListener(event, fn, capture);
-  }
-};
-
-/**
- * Load utility.
- *
- * @api private
- */
-
-exports.load = function (fn) {
-  if (global.document && document.readyState === 'complete' || pageLoaded) {
-    return fn();
-  }
-
-  exports.on(global, 'load', fn, false);
-};
-
-/**
- * Change the internal pageLoaded value.
- */
-
-if ('undefined' != typeof window) {
-  exports.load(function () {
-    pageLoaded = true;
-  });
-}
-
-/**
- * Defers a function to ensure a spinner is not displayed by the browser.
- *
- * @param {Function} fn
- * @api private
- */
-
-exports.defer = function (fn) {
-  if (!exports.ua.webkit || 'undefined' != typeof importScripts) {
-    return fn();
-  }
-
-  exports.load(function () {
-    setTimeout(fn, 100);
-  });
-};
-
-/**
- * JSON parse.
- *
- * @see Based on jQuery#parseJSON (MIT) and JSON2
- * @api private
- */
-
-var rvalidchars = /^[\],:{}\s]*$/
-  , rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g
-  , rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g
-  , rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g
-  , rtrimLeft = /^\s+/
-  , rtrimRight = /\s+$/
-
-exports.parseJSON = function (data) {
-  if ('string' != typeof data || !data) {
-    return null;
-  }
-
-  data = data.replace(rtrimLeft, '').replace(rtrimRight, '');
-
-  // Attempt to parse using the native JSON parser first
-  if (global.JSON && JSON.parse) {
-    return JSON.parse(data);
-  }
-
-  if (rvalidchars.test(data.replace(rvalidescape, '@')
-      .replace(rvalidtokens, ']')
-      .replace(rvalidbraces, ''))) {
-    return (new Function('return ' + data))();
-  }
-};
-
-/**
- * UA / engines detection namespace.
- *
- * @namespace
- */
-
-exports.ua = {};
-
-/**
- * Whether the UA supports CORS for XHR.
- *
- * @api private
- */
-
-exports.ua.hasCORS = 'undefined' != typeof XMLHttpRequest && (function () {
-  try {
-    var a = new XMLHttpRequest();
-  } catch (e) {
-    return false;
-  }
-
-  return a.withCredentials != undefined;
-})();
-
-/**
- * Detect webkit.
- *
- * @api private
- */
-
-exports.ua.webkit = 'undefined' != typeof navigator && 
-  /webkit/i.test(navigator.userAgent);
-
-/**
- * Detect gecko.
- *
- * @api private
- */
-
-exports.ua.gecko = 'undefined' != typeof navigator && 
-  /gecko/i.test(navigator.userAgent);
-
-/**
- * Detect android;
- */
-
-exports.ua.android = 'undefined' != typeof navigator && 
-  /android/i.test(navigator.userAgent);
-
-/**
- * XHR request helper.
- *
- * @param {Boolean} whether we need xdomain
- * @api private
- */
-
-exports.request = function request (xdomain) {
-
-
-
-
-
-  if (xdomain && 'undefined' != typeof XDomainRequest) {
-    return new XDomainRequest();
-  }
-
-  // XMLHttpRequest can be disabled on IE
-  try {
-    if ('undefined' != typeof XMLHttpRequest && (!xdomain || exports.ua.hasCORS)) {
-      return new XMLHttpRequest();
-    }
-  } catch (e) { }
-
-  if (!xdomain) {
-    try {
-      return new ActiveXObject('Microsoft.XMLHTTP');
-    } catch(e) { }
-  }
-};
-
-/**
- * Parses an URI
- *
- * @author Steven Levithan <stevenlevithan.com> (MIT license)
- * @api private
- */
-
-var re = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
-
-var parts = [
-    'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host'
-  , 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
-];
-
-exports.parseUri = function (str) {
-  var m = re.exec(str || '')
-    , uri = {}
-    , i = 14;
-
-  while (i--) {
-    uri[parts[i]] = m[i] || '';
-  }
-
-  return uri;
-};
-
-/**
- * Compiles a querystring
- *
- * @param {Object} 
- * @api private
- */
-
-exports.qs = function (obj) {
-  var str = '';
-
-  for (var i in obj) {
-    if (obj.hasOwnProperty(i)) {
-      if (str.length) str += '&';
-      str += i + '=' + encodeURIComponent(obj[i]);
-    }
-  }
-
-  return str;
-};
-
-});if ("undefined" != typeof module) { module.exports = require('engine.io-client'); } else { eio = require('engine.io-client'); }
+});eio = require('engine.io-client');
 })();
