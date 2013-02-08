@@ -22,7 +22,6 @@
     "mocha": "*",
     "serve": "*",
     "expect.js": "*",
-    "browserbuild": "*",
     "component": "*"
   },
   "component": {
