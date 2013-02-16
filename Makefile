@@ -3,12 +3,12 @@ TESTS = $(shell find test/*.js -depth 1 -type f ! -name 'common.js')
 REPORTER = dot
 
 build: components lib
-	@component build --standalone eio
+	@./node_modules/.bin/component build --standalone eio
 	@mv build/build.js engine.io.js
 	@rm -rf build
 
 components: component.json
-	@component install --dev
+	@./node_modules/.bin/component install --dev
 
 clean:
 	rm -fr components
