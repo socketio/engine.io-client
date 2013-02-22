@@ -524,7 +524,7 @@ module.exports = Object.keys || function keys (obj){
 
 });
 require.register("visionmedia-debug/index.js", function(module, exports, require){
-if ('undefined' == typeof window) {
+if ('undefined' == typeof self) {
   module.exports = require('./lib/debug');
 } else {
   module.exports = require('./debug');
@@ -560,11 +560,14 @@ function debug(name) {
       + fmt
       + ' +' + debug.humanize(ms);
 
-    // This hackery is required for IE8
-    // where `console.log` doesn't have 'apply'
-    window.console
-      && console.log
-      && Function.prototype.apply.call(console.log, console, arguments);
+    // make sure it's not a webworker
+    if ('undefined' != typeof window) {
+      // This hackery is required for IE8
+      // where `console.log` doesn't have 'apply'
+      window.console
+        && console.log
+        && Function.prototype.apply.call(console.log, console, arguments);
+    }
   }
 }
 
@@ -653,7 +656,8 @@ debug.enabled = function(name) {
 
 // persist
 
-if (window.localStorage) debug.enable(localStorage.debug);
+// webworkers don't have localStorage
+if ('undefined' != typeof window && window.localStorage) debug.enable(localStorage.debug);
 });
 require.register("engine.io/lib/index.js", function(module, exports, require){
 
@@ -1398,7 +1402,7 @@ var pageLoaded = false;
  */
 
 exports.global = function () {
-  return 'undefined' != typeof window ? window : global;
+  return 'undefined' != typeof window ? window : self;
 };
 
 /**
@@ -2892,7 +2896,7 @@ require.alias("visionmedia-debug/debug.js", "engine.io/deps/debug/debug.js");
 
 require.alias("engine.io/lib/index.js", "engine.io/index.js");
   if ("undefined" == typeof module) {
-    window.eio = require("engine.io");
+    self.eio = require("engine.io");
   } else {
     module.exports = require("engine.io");
   }
