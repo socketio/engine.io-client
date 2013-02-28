@@ -20,6 +20,9 @@
     "serve": "*",
     "expect.js": "*"
   },
+  "browser": {
+    "./xmlreq.js": "./xmlreq-browser.js"
+  },
   "component": {
     "scripts": {
       "engine.io/index.js": "lib/index.js",
