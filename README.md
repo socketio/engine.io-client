@@ -101,7 +101,7 @@ Exposed as `eio` in the browser standalone build.
 - **constructor**
     - Initializes the client
     - **Parameters**
-      - `String` uri
+      - `String` uri, uri can contain queries like http://www.webhost.com/?a=b
       - `Object`: optional, options object
     - **Options**
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
