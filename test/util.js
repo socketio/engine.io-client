@@ -15,6 +15,7 @@ describe('util', function () {
     var http = util.parseUri('http://google.com')
       , https = util.parseUri('https://www.google.com:80')
       , query = util.parseUri('google.com:8080/foo/bar?foo=bar')
+      , localhost = util.parseUri('localhost:3000/foo/bar')
 
     expect(http.protocol).to.be('http');
     expect(http.port).to.be('');
@@ -26,6 +27,9 @@ describe('util', function () {
     expect(query.query).to.be('foo=bar');
     expect(query.path).to.be('/foo/bar');
     expect(query.relative).to.be('/foo/bar?foo=bar');
+    expect(localhost.host).to.be('localhost');
+    expect(localhost.port).to.be('3000');
+    expect(localhost.path).to.be('/foo/bar');
   });
 
   it('should construct a query string from an object', function () {
