@@ -195,7 +195,7 @@ module.exports = Emitter;
 
 /**
  * Initialize a new `Emitter`.
- * 
+ *
  * @api public
  */
 
@@ -290,7 +290,7 @@ Emitter.prototype.off = function(event, fn){
  *
  * @param {String} event
  * @param {Mixed} ...
- * @return {Emitter} 
+ * @return {Emitter}
  */
 
 Emitter.prototype.emit = function(event){
@@ -412,7 +412,7 @@ exports.decodePacket = function (data) {
 
 /**
  * Encodes multiple messages (payload).
- * 
+ *
  *     <length>:data
  *
  * Example:
@@ -1170,7 +1170,7 @@ Socket.prototype.onClose = function (reason, desc) {
 
 /**
  * Filters upgrades, returning only those matching client transports.
- * 
+ *
  * @param {Array} server upgrades
  * @api private
  *
@@ -2187,21 +2187,23 @@ Request.prototype.onError = function(err){
  */
 
 Request.prototype.cleanup = function(){
-  // xmlhttprequest
-  this.xhr.onreadystatechange = empty;
+  if (this.xhr) {
+    // xmlhttprequest
+    this.xhr.onreadystatechange = empty;
 
-  // xdomainrequest
-  this.xhr.onload = this.xhr.onerror = empty;
+    // xdomainrequest
+    this.xhr.onload = this.xhr.onerror = empty;
 
-  try {
-    this.xhr.abort();
-  } catch(e) {}
+    try {
+      this.xhr.abort();
+    } catch(e) {}
 
-  if (xobject) {
-    delete Request.requests[this.index];
+    if (xobject) {
+      delete Request.requests[this.index];
+    }
+
+    this.xhr = null;
   }
-
-  this.xhr = null;
 };
 
 /**
