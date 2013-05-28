@@ -3050,7 +3050,7 @@ require.alias("engine.io/lib/index.js", "engine.io/index.js");
 if (typeof exports == "object") {
   module.exports = require("engine.io");
 } else if (typeof define == "function" && define.amd) {
-  define(function(){ return require("engine.io"); });
+  define(require("engine.io"));
 } else {
   this["eio"] = require("engine.io");
 }})();
