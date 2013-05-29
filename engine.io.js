@@ -210,7 +210,7 @@ module.exports = Emitter;
 
 /**
  * Initialize a new `Emitter`.
- * 
+ *
  * @api public
  */
 
@@ -305,7 +305,7 @@ Emitter.prototype.off = function(event, fn){
  *
  * @param {String} event
  * @param {Mixed} ...
- * @return {Emitter} 
+ * @return {Emitter}
  */
 
 Emitter.prototype.emit = function(event){
@@ -439,7 +439,7 @@ exports.decodePacket = function (data) {
 
 /**
  * Encodes multiple messages (payload).
- * 
+ *
  *     <length>:data
  *
  * Example:
@@ -1123,7 +1123,7 @@ Socket.prototype.ping = function () {
 
 /**
  * Called on `drain` event
- * 
+ *
  * @api private
  */
 
@@ -1144,7 +1144,7 @@ Socket.prototype.ping = function () {
 
 /**
  * Calls all the callback functions associated with sending packets
- * 
+ *
  * @api private
  */
 
@@ -3050,7 +3050,7 @@ require.alias("engine.io/lib/index.js", "engine.io/index.js");
 if (typeof exports == "object") {
   module.exports = require("engine.io");
 } else if (typeof define == "function" && define.amd) {
-  var factory = function() { require("engine.io"); };
+  var factory = function() { return require("engine.io"); };
   define(factory);
 } else {
   this["eio"] = require("engine.io");
