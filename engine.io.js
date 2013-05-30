@@ -283,8 +283,18 @@ Emitter.prototype.once = function(event, fn){
  * @api public
  */
 
-Emitter.prototype.off = function(event, fn){
+Emitter.prototype.off =
+Emitter.prototype.removeListener =
+Emitter.prototype.removeAllListeners = function(event, fn){
   this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
   var callbacks = this._callbacks[event];
   if (!callbacks) return this;
 
@@ -348,7 +358,6 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-
 });
 require.register("component-indexof/index.js", function(exports, require, module){
 
@@ -367,7 +376,12 @@ require.register("LearnBoost-engine.io-protocol/lib/index.js", function(exports,
  * Module dependencies.
  */
 
-var keys = require('./keys')
+var keys = require('./keys');
+
+/**
+ * Current protocol version.
+ */
+exports.protocol = 2;
 
 /**
  * Packet types.
@@ -389,7 +403,7 @@ var packetslist = keys(packets);
  * Premade error packet.
  */
 
-var err = { type: 'error', data: 'parser error' }
+var err = { type: 'error', data: 'parser error' };
 
 /**
  * Encodes a packet.
@@ -406,7 +420,7 @@ var err = { type: 'error', data: 'parser error' }
  */
 
 exports.encodePacket = function (packet) {
-  var encoded = packets[packet.type]
+  var encoded = packets[packet.type];
 
   // data fragment is optional
   if (undefined !== packet.data) {
@@ -455,8 +469,8 @@ exports.encodePayload = function (packets) {
     return '0:';
   }
 
-  var encoded = ''
-    , message
+  var encoded = '';
+  var message;
 
   for (var i = 0, l = packets.length; i < l; i++) {
     message = exports.encodePacket(packets[i]);
@@ -469,37 +483,36 @@ exports.encodePayload = function (packets) {
 /*
  * Decodes data when a payload is maybe expected.
  *
- * @param {String} data
- * @return {Array} packets
+ * @param {String} data, callback method
  * @api public
  */
 
-exports.decodePayload = function (data) {
+exports.decodePayload = function (data, callback) {
+  var packet;
   if (data == '') {
     // parser error - ignoring payload
-    return [err];
+    return callback(err, 0, 1);
   }
 
-  var packets = []
-    , length = ''
-    , n, msg, packet
+  var length = ''
+    , n, msg;
 
   for (var i = 0, l = data.length; i < l; i++) {
-    var chr = data.charAt(i)
+    var chr = data.charAt(i);
 
     if (':' != chr) {
       length += chr;
     } else {
       if ('' == length || (length != (n = Number(length)))) {
         // parser error - ignoring payload
-        return [err];
+        return callback(err, 0, 1);
       }
 
       msg = data.substr(i + 1, n);
 
       if (length != msg.length) {
         // parser error - ignoring payload
-        return [err];
+        return callback(err, 0, 1);
       }
 
       if (msg.length) {
@@ -507,24 +520,24 @@ exports.decodePayload = function (data) {
 
         if (err.type == packet.type && err.data == packet.data) {
           // parser error in individual packet - ignoring payload
-          return [err];
+          return callback(err, 0, 1);
         }
 
-        packets.push(packet);
+        var ret = callback(packet, i + n, l);
+        if (false === ret) return;
       }
 
       // advance cursor
       i += n;
-      length = ''
+      length = '';
     }
   }
 
   if (length != '') {
     // parser error - ignoring payload
-    return [err];
+    return callback(err, 0, 1);
   }
 
-  return packets;
 };
 
 });
@@ -578,6 +591,8 @@ function debug(name) {
   if (!debug.enabled(name)) return function(){};
 
   return function(fmt){
+    fmt = coerce(fmt);
+
     var curr = new Date;
     var ms = curr - (debug[name] || curr);
     debug[name] = curr;
@@ -611,7 +626,9 @@ debug.skips = [];
  */
 
 debug.enable = function(name) {
-  localStorage.debug = name;
+  try {
+    localStorage.debug = name;
+  } catch(e){}
 
   var split = (name || '').split(/[\s,]+/)
     , len = split.length;
@@ -678,9 +695,19 @@ debug.enabled = function(name) {
   return false;
 };
 
+/**
+ * Coerce `val`.
+ */
+
+function coerce(val) {
+  if (val instanceof Error) return val.stack || val.message;
+  return val;
+}
+
 // persist
 
 if (window.localStorage) debug.enable(localStorage.debug);
+
 });
 require.register("engine.io/lib/index.js", function(exports, require, module){
 
@@ -1043,7 +1070,7 @@ Socket.prototype.onPacket = function (packet) {
         break;
 
       case 'pong':
-        this.ping();
+        this.setPing();
         break;
 
       case 'error':
@@ -1082,7 +1109,7 @@ Socket.prototype.onHandshake = function (data) {
   this.pingInterval = data.pingInterval;
   this.pingTimeout = data.pingTimeout;
   this.onOpen();
-  this.ping();
+  this.setPing();
 
   // Prolong liveness of socket on heartbeat
   this.removeListener('heartbeat', this.onHeartbeat);
@@ -1111,14 +1138,24 @@ Socket.prototype.onHeartbeat = function (timeout) {
  * @api private
  */
 
-Socket.prototype.ping = function () {
+Socket.prototype.setPing = function () {
   var self = this;
   clearTimeout(self.pingIntervalTimer);
   self.pingIntervalTimer = setTimeout(function () {
     debug('writing ping packet - expecting pong within %sms', self.pingTimeout);
-    self.sendPacket('ping');
+    self.ping();
     self.onHeartbeat(self.pingTimeout);
   }, self.pingInterval);
+};
+
+/**
+* Sends a ping packet
+*
+* @api public
+*/
+
+Socket.prototype.ping = function () {
+  this.sendPacket('ping');
 };
 
 /**
