@@ -1149,7 +1149,7 @@ Socket.prototype.setPing = function () {
 };
 
 /**
-* Sends a ping packet
+* Sends a ping packet 
 *
 * @api public
 */
