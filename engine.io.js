@@ -64,7 +64,6 @@ require.aliases = {};
 
 require.resolve = function(path) {
   if (path.charAt(0) === '/') path = path.slice(1);
-  var index = path + '/index.js';
 
   var paths = [
     path,
@@ -77,10 +76,7 @@ require.resolve = function(path) {
   for (var i = 0; i < paths.length; i++) {
     var path = paths[i];
     if (require.modules.hasOwnProperty(path)) return path;
-  }
-
-  if (require.aliases.hasOwnProperty(index)) {
-    return require.aliases[index];
+    if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
   }
 };
 
@@ -1160,7 +1156,7 @@ Socket.prototype.ping = function () {
 
 /**
  * Called on `drain` event
- *
+ * 
  * @api private
  */
 
@@ -1181,7 +1177,7 @@ Socket.prototype.ping = function () {
 
 /**
  * Calls all the callback functions associated with sending packets
- *
+ * 
  * @api private
  */
 
@@ -2284,7 +2280,17 @@ Request.prototype.create = function(){
   }
 
   debug('sending xhr with url %s | data %s', this.uri, this.data);
-  xhr.send(this.data);
+  try {
+    xhr.send(this.data);
+  } catch (e) {
+    // Need to defer since .create() is called directly from the constructor
+    // and thus the 'error' event can only be only bound *after* this exception
+    // occurs.  Therefore, also, we cannot throw here at all.
+    util.defer(function() {
+      self.onError(e);
+    });
+    return;
+  }
 
   if (xobject) {
     this.index = Request.requestsCount++;
@@ -3066,6 +3072,10 @@ function load (arr, fn) {
 };
 
 });
+
+
+
+
 require.alias("component-emitter/index.js", "engine.io/deps/emitter/index.js");
 require.alias("component-emitter/index.js", "emitter/index.js");
 
@@ -3077,18 +3087,14 @@ require.alias("LearnBoost-engine.io-protocol/lib/keys.js", "engine.io/deps/engin
 require.alias("LearnBoost-engine.io-protocol/lib/index.js", "engine.io/deps/engine.io-parser/index.js");
 require.alias("LearnBoost-engine.io-protocol/lib/index.js", "engine.io-parser/index.js");
 require.alias("LearnBoost-engine.io-protocol/lib/index.js", "LearnBoost-engine.io-protocol/index.js");
-
 require.alias("visionmedia-debug/index.js", "engine.io/deps/debug/index.js");
 require.alias("visionmedia-debug/debug.js", "engine.io/deps/debug/debug.js");
 require.alias("visionmedia-debug/index.js", "debug/index.js");
 
-require.alias("engine.io/lib/index.js", "engine.io/index.js");
-
-if (typeof exports == "object") {
+require.alias("engine.io/lib/index.js", "engine.io/index.js");if (typeof exports == "object") {
   module.exports = require("engine.io");
 } else if (typeof define == "function" && define.amd) {
-  var factory = function() { return require("engine.io"); };
-  define(factory);
+  define(function(){ return require("engine.io"); });
 } else {
   this["eio"] = require("engine.io");
 }})();
