@@ -1,0 +1,7 @@
+{
+  "name": "engine.io-client",
+  "version": "0.7.12",
+  "description": "This is the client for Engine, the implementation of transport-based cross-browser/cross-device bi-directional communication layer for Socket.IO.",
+  "main": "engine.io.js",
+  "dependencies": {}
+}
