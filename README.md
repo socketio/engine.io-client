@@ -121,6 +121,7 @@ Exposed as `eio` in the browser standalone build.
       - `policyPort` (`Number`): port the policy server listens on (`843`)
       - `path` (`String`): path to connect to, default is `/engine.io`
       - `transports` (`Array`): a list of transports to try (in order).
+      - `headers` (`Object`): headers and values to send with all XHRs
       Defaults to `['polling', 'websocket', 'flashsocket']`. `Engine`
       always attempts to connect directly with the first one, provided the
       feature detection test for it passes.
@@ -131,6 +132,12 @@ Exposed as `eio` in the browser standalone build.
       - `Function`: optional, callback upon `drain`
 - `close`
     - Disconnects the client.
+- `open`
+    - Reopens a previously closed socket
+    - **Parameters**
+      - `Object`: optional, header names and values. Overrides the headers in the
+      previous open. If omitted will keep using the previously defined headers. 
+      Set to an empty object to stop sending custom headers.
 
 ### Transport
 
