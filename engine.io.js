@@ -135,6 +135,7 @@ function Socket(uri, opts){
   this.timestampRequests = !!opts.timestampRequests;
   this.flashPath = opts.flashPath || '';
   this.transports = opts.transports || ['polling', 'websocket', 'flashsocket'];
+  this.headers = opts.headers || {};
   this.readyState = '';
   this.writeBuffer = [];
   this.callbackBuffer = [];
@@ -210,7 +211,8 @@ Socket.prototype.createTransport = function (name) {
     timestampRequests: this.timestampRequests,
     timestampParam: this.timestampParam,
     flashPath: this.flashPath,
-    policyPort: this.policyPort
+    policyPort: this.policyPort,
+    headers: this.headers
   });
 
   return transport;
@@ -232,8 +234,9 @@ function clone (obj) {
  * @api private
  */
 
-Socket.prototype.open = function () {
+Socket.prototype.open = function (headers) {
   this.readyState = 'opening';
+  this.headers = headers || this.headers;
   var transport = this.createTransport(this.transports[0]);
   transport.open();
   this.setTransport(transport);
@@ -688,6 +691,7 @@ function Transport (opts) {
   this.timestampRequests = opts.timestampRequests;
   this.readyState = '';
   this.agent = opts.agent || false;
+  this.headers = opts.headers || {};
 };
 
 /**
@@ -1461,7 +1465,7 @@ XHR.prototype.request = function(opts){
  */
 
 XHR.prototype.doWrite = function(data, fn){
-  var req = this.request({ method: 'POST', data: data });
+  var req = this.request({ method: 'POST', data: data, headers: this.headers });
   var self = this;
   req.on('success', fn);
   req.on('error', function(err){
@@ -1478,7 +1482,7 @@ XHR.prototype.doWrite = function(data, fn){
 
 XHR.prototype.doPoll = function(){
   debug('xhr poll');
-  var req = this.request();
+  var req = this.request({headers: this.headers});
   var self = this;
   req.on('data', function(data){
     self.onData(data);
@@ -1503,6 +1507,7 @@ function Request(opts){
   this.async = false !== opts.async;
   this.data = undefined != opts.data ? opts.data : null;
   this.agent = opts.agent;
+  this.headers = opts.headers;
   this.create();
 }
 
@@ -1569,6 +1574,12 @@ Request.prototype.create = function(){
       }
     };
   }
+
+  if (xhr.setRequestHeader) {
+    for (var header in this.headers) {
+      xhr.setRequestHeader(header, this.headers[header]);
+    }
+  } 
 
   debug('sending xhr with url %s | data %s', this.uri, this.data);
   try {
