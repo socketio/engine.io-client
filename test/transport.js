@@ -27,7 +27,7 @@ describe('Transport', function () {
         , query: { sid: 'test' }
         , timestampRequests: false
       });
-      expect(polling.uri()).to.be('http://localhost/engine.io?sid=test');
+      expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?sid=test(&t=[0-9]+)?/);
     });
 
     it('should generate an http uri w/o a port', function () {
@@ -39,7 +39,7 @@ describe('Transport', function () {
         , port: 80
         , timestampRequests: false
       });
-      expect(polling.uri()).to.be('http://localhost/engine.io?sid=test');
+      expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?sid=test(&t=[0-9]+)?/);
     });
 
     it('should generate an http uri with a port', function () {
@@ -51,7 +51,7 @@ describe('Transport', function () {
         , port: 3000
         , timestampRequests: false
       });
-      expect(polling.uri()).to.be('http://localhost:3000/engine.io?sid=test');
+      expect(polling.uri()).to.match(/http:\/\/localhost:3000\/engine\.io\?sid=test(&t=[0-9]+)?/);
     });
 
     it('should generate an https uri w/o a port', function () {
@@ -63,7 +63,7 @@ describe('Transport', function () {
         , port: 443
         , timestampRequests: false
       });
-      expect(polling.uri()).to.be('https://localhost/engine.io?sid=test');
+      expect(polling.uri()).to.match(/https:\/\/localhost\/engine\.io\?sid=test(&t=[0-9]+)?/);
     });
 
     it('should generate a timestamped uri', function () {
@@ -73,7 +73,7 @@ describe('Transport', function () {
         , timestampParam: 't'
         , timestampRequests: true
       });
-      expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?t=[0-9]+/);
+      expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?(j=\d&)?t=[0-9]+/);
     });
 
     it('should generate a ws uri', function () {
