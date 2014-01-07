@@ -133,6 +133,11 @@ Exposed as `eio` in the browser standalone build.
       - `Function`: optional, callback upon `drain`
 - `close`
     - Disconnects the client.
+- `open`
+    - Reopen the existing socket
+    - **Parameters**
+      - `String` uri: optional, if you wish a different URI from the constructor or
+        previous `open`
 
 ### Transport
 
