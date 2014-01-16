@@ -1,10 +1,10 @@
 !function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.eio=e():"undefined"!=typeof global?global.eio=e():"undefined"!=typeof self&&(self.eio=e())}(function(){var define,module,exports;
 return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
+undefined
 module.exports =  require('./lib/');
 
 },{"./lib/":3}],2:[function(require,module,exports){
-
+undefined
 /**
  * Module dependencies.
  */
@@ -41,8 +41,8 @@ Emitter.prototype.removeEventListener = Emitter.prototype.off;
 
 Emitter.prototype.removeListener = Emitter.prototype.off;
 
-},{"emitter":15}],3:[function(require,module,exports){
-
+},{"emitter":14}],3:[function(require,module,exports){
+undefined
 module.exports = require('./socket');
 
 /**
@@ -53,15 +53,14 @@ module.exports = require('./socket');
  */
 module.exports.parser = require('engine.io-parser');
 
-},{"./socket":4,"engine.io-parser":16}],4:[function(require,module,exports){
-/**
+},{"./socket":4,"engine.io-parser":15}],4:[function(require,module,exports){
+undefined/**
  * Module dependencies.
  */
 
 var util = require('./util')
   , transports = require('./transports')
   , Emitter = require('./emitter')
-  , debug = require('debug')('engine.io-client:socket') //!!DEBUG
   , index = require('indexof')
   , parser = require('engine.io-parser');
 
@@ -177,7 +176,6 @@ Socket.parser = require('engine.io-parser');
  */
 
 Socket.prototype.createTransport = function (name) {
-  debug('creating transport "%s"', name); //!!DEBUG
   var query = clone(this.query);
 
   // append engine.io protocol identifier
@@ -237,11 +235,9 @@ Socket.prototype.open = function () {
  */
 
 Socket.prototype.setTransport = function(transport){
-  debug('setting transport %s', transport.name); //!!DEBUG
   var self = this;
 
   if (this.transport) {
-    debug('clearing existing transport %s', this.transport.name); //!!DEBUG
     this.transport.removeAllListeners();
   }
 
@@ -272,7 +268,6 @@ Socket.prototype.setTransport = function(transport){
  */
 
 Socket.prototype.probe = function (name) {
-  debug('probing transport "%s"', name); //!!DEBUG
   var transport = this.createTransport(name, { probe: 1 })
     , failed = false
     , self = this;
@@ -280,22 +275,18 @@ Socket.prototype.probe = function (name) {
   transport.once('open', function () {
     if (failed) return;
 
-    debug('probe transport "%s" opened', name); //!!DEBUG
     transport.send([{ type: 'ping', data: 'probe' }]);
     transport.once('packet', function (msg) {
       if (failed) return;
       if ('pong' == msg.type && 'probe' == msg.data) {
-        debug('probe transport "%s" pong', name); //!!DEBUG
         self.upgrading = true;
         self.emit('upgrading', transport);
 
-        debug('pausing current transport "%s"', self.transport.name);
         self.transport.pause(function () {
           if (failed) return;
           if ('closed' == self.readyState || 'closing' == self.readyState) {
             return;
           }
-          debug('changing transport and sending upgrade packet'); //!!DEBUG
           transport.removeListener('error', onerror);
           self.emit('upgrade', transport);
           self.setTransport(transport);
@@ -305,7 +296,6 @@ Socket.prototype.probe = function (name) {
           self.flush();
         });
       } else {
-        debug('probe transport "%s" failed', name); //!!DEBUG
         var err = new Error('probe error');
         err.transport = transport.name;
         self.emit('upgradeError', err);
@@ -326,7 +316,6 @@ Socket.prototype.probe = function (name) {
     transport.close();
     transport = null;
 
-    debug('probe transport "%s" failed because of error: %s', name, err); //!!DEBUG
 
     self.emit('upgradeError', error);
   }
@@ -335,7 +324,6 @@ Socket.prototype.probe = function (name) {
 
   this.once('close', function () {
     if (transport) {
-      debug('socket closed prematurely - aborting probe'); //!!DEBUG
       failed = true;
       transport.close();
       transport = null;
@@ -344,7 +332,6 @@ Socket.prototype.probe = function (name) {
 
   this.once('upgrading', function (to) {
     if (transport && to.name != transport.name) {
-      debug('"%s" works - aborting "%s"', to.name, transport.name); //!!DEBUG
       transport.close();
       transport = null;
     }
@@ -358,7 +345,6 @@ Socket.prototype.probe = function (name) {
  */
 
 Socket.prototype.onOpen = function () {
-  debug('socket open'); //!!DEBUG
   this.readyState = 'open';
   this.emit('open');
   this.onopen && this.onopen.call(this);
@@ -367,7 +353,6 @@ Socket.prototype.onOpen = function () {
   // we check for `readyState` in case an `open`
   // listener alreay closed the socket
   if ('open' == this.readyState && this.upgrade && this.transport.pause) {
-    debug('starting upgrade probes'); //!!DEBUG
     for (var i = 0, l = this.upgrades.length; i < l; i++) {
       this.probe(this.upgrades[i]);
     }
@@ -382,7 +367,6 @@ Socket.prototype.onOpen = function () {
 
 Socket.prototype.onPacket = function (packet) {
   if ('opening' == this.readyState || 'open' == this.readyState) {
-    debug('socket receive: type "%s", data "%s"', packet.type, packet.data); //!!DEBUG
 
     this.emit('packet', packet);
 
@@ -415,7 +399,6 @@ Socket.prototype.onPacket = function (packet) {
         break;
     }
   } else {
-    debug('packet received with socket readyState "%s"', this.readyState); //!!DEBUG
   }
 };
 
@@ -467,7 +450,6 @@ Socket.prototype.setPing = function () {
   var self = this;
   clearTimeout(self.pingIntervalTimer);
   self.pingIntervalTimer = setTimeout(function () {
-    debug('writing ping packet - expecting pong within %sms', self.pingTimeout); //!!DEBUG
     self.ping();
     self.onHeartbeat(self.pingTimeout);
   }, self.pingInterval);
@@ -520,7 +502,6 @@ Socket.prototype.ping = function () {
 Socket.prototype.flush = function () {
   if ('closed' != this.readyState && this.transport.writable &&
     !this.upgrading && this.writeBuffer.length) {
-    debug('flushing %d packets in socket', this.writeBuffer.length); //!!DEBUG
     this.transport.send(this.writeBuffer);
     // keep track of current length of writeBuffer
     // splice writeBuffer and callbackBuffer on `drain`
@@ -570,7 +551,6 @@ Socket.prototype.sendPacket = function (type, data, fn) {
 Socket.prototype.close = function () {
   if ('opening' == this.readyState || 'open' == this.readyState) {
     this.onClose('forced close');
-    debug('socket closing - telling transport to close'); //!!DEBUG
     this.transport.close();
   }
 
@@ -584,7 +564,6 @@ Socket.prototype.close = function () {
  */
 
 Socket.prototype.onError = function (err) {
-  debug('socket error %j', err); //!!DEBUG
   this.emit('error', err);
   this.onerror && this.onerror.call(this, err);
   this.onClose('transport error', err);
@@ -598,7 +577,6 @@ Socket.prototype.onError = function (err) {
 
 Socket.prototype.onClose = function (reason, desc) {
   if ('opening' == this.readyState || 'open' == this.readyState) {
-    debug('socket close with reason: "%s"', reason); //!!DEBUG
     var self = this;
 
     // clear timers
@@ -647,8 +625,8 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":19,"indexof":21}],5:[function(require,module,exports){
-
+},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"engine.io-parser":15,"global":18,"indexof":20}],5:[function(require,module,exports){
+undefined
 /**
  * Module dependencies.
  */
@@ -791,14 +769,13 @@ Transport.prototype.onClose = function () {
   this.emit('close');
 };
 
-},{"./emitter":2,"./util":12,"engine.io-parser":16}],6:[function(require,module,exports){
-/**
+},{"./emitter":2,"./util":12,"engine.io-parser":15}],6:[function(require,module,exports){
+undefined/**
  * Module dependencies.
  */
 
 var WS = require('./websocket')
   , util = require('../util')
-  , debug = require('debug')('engine.io-client:flashsocket');
 
 /**
  * Module exports.
@@ -860,7 +837,6 @@ FlashWS.prototype.doOpen = function () {
   function log (type) {
     return function(){
       var str = Array.prototype.join.call(arguments, ' ');
-      debug('[websocketjs %s] %s', type, str);
     };
   };
 
@@ -1015,12 +991,10 @@ function create (path, fn) {
   var el = document.createElement('script');
   var loaded = false;
 
-  debug('loading "%s"', path);
   el.onload = el.onreadystatechange = function () {
     if (loaded || scripts[path]) return;
     var rs = el.readyState;
     if (!rs || 'loaded' == rs || 'complete' == rs) {
-      debug('loaded "%s"', path);
       el.onload = el.onreadystatechange = null;
       loaded = true;
       scripts[path] = true;
@@ -1053,8 +1027,8 @@ function load (arr, fn) {
   process(0);
 };
 
-},{"../util":12,"./websocket":11,"debug":14,"global":19}],7:[function(require,module,exports){
-
+},{"../util":12,"./websocket":11,"global":18}],7:[function(require,module,exports){
+undefined
 /**
  * Module dependencies
  */
@@ -1112,8 +1086,8 @@ function polling (opts) {
   }
 };
 
-},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":19,"xmlhttprequest":13}],8:[function(require,module,exports){
-
+},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":18,"xmlhttprequest":13}],8:[function(require,module,exports){
+undefined
 /**
  * Module requirements.
  */
@@ -1346,8 +1320,8 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
-},{"../util":12,"./polling":10,"global":19}],9:[function(require,module,exports){
-/**
+},{"../util":12,"./polling":10,"global":18}],9:[function(require,module,exports){
+undefined/**
  * Module requirements.
  */
 
@@ -1355,7 +1329,6 @@ var XMLHttpRequest = require('xmlhttprequest')
   , Polling = require('./polling')
   , util = require('../util')
   , Emitter = require('../emitter')
-  , debug = require('debug')('engine.io-client:polling-xhr'); //!!DEBUG
 
 /**
  * Module exports.
@@ -1465,7 +1438,6 @@ XHR.prototype.doWrite = function(data, fn){
  */
 
 XHR.prototype.doPoll = function(){
-  debug('xhr poll'); //!!DEBUG
   var req = this.request();
   var self = this;
   req.on('data', function(data){
@@ -1511,7 +1483,6 @@ Request.prototype.create = function(){
   var self = this;
 
   try {
-    debug('xhr open %s: %s', this.method, this.uri); //!!DEBUG
     xhr.open(this.method, this.uri, this.async);
 
     if ('POST' == this.method) {
@@ -1544,7 +1515,6 @@ Request.prototype.create = function(){
       }
     };
 
-    debug('xhr data %s', this.data); //!!DEBUG
     xhr.send(this.data);
   } catch (e) {
     // Need to defer since .create() is called directly from the constructor
@@ -1642,15 +1612,14 @@ if (xobject) {
   });
 }
 
-},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":19,"xmlhttprequest":13}],10:[function(require,module,exports){
-/**
+},{"../emitter":2,"../util":12,"./polling":10,"global":18,"xmlhttprequest":13}],10:[function(require,module,exports){
+undefined/**
  * Module dependencies.
  */
 
 var Transport = require('../transport')
   , util = require('../util')
   , parser = require('engine.io-parser')
-  , debug = require('debug')('engine.io-client:polling'); //!!DEBUG
 
 /**
  * Module exports.
@@ -1712,7 +1681,6 @@ Polling.prototype.pause = function(onPause){
   this.readyState = 'pausing';
 
   function pause(){
-    debug('paused'); //!!DEBUG
     self.readyState = 'paused';
     onPause();
   }
@@ -1721,19 +1689,15 @@ Polling.prototype.pause = function(onPause){
     var total = 0;
 
     if (this.polling) {
-      debug('we are currently polling - waiting to pause'); //!!DEBUG
       total++;
       this.once('pollComplete', function(){
-        debug('pre-pause polling complete'); //!!DEBUG
         --total || pause();
       });
     }
 
     if (!this.writable) {
-      debug('we are currently writing - waiting to pause'); //!!DEBUG
       total++;
       this.once('drain', function(){
-        debug('pre-pause writing complete'); //!!DEBUG
         --total || pause();
       });
     }
@@ -1749,7 +1713,6 @@ Polling.prototype.pause = function(onPause){
  */
 
 Polling.prototype.poll = function(){
-  debug('polling'); //!!DEBUG
   this.polling = true;
   this.doPoll();
   this.emit('poll');
@@ -1763,7 +1726,6 @@ Polling.prototype.poll = function(){
 
 Polling.prototype.onData = function(data){
   var self = this;
-  debug('polling got data %s', data); //!!DEBUG
 
   // decode payload
   parser.decodePayload(data, function(packet, index, total) {
@@ -1791,7 +1753,6 @@ Polling.prototype.onData = function(data){
     if ('open' == this.readyState) {
       this.poll();
     } else {
-      debug('ignoring poll - transport state "%s"', this.readyState); //!!DEBUG
     }
   }
 };
@@ -1806,17 +1767,14 @@ Polling.prototype.doClose = function(){
   var self = this;
 
   function close(){
-    debug('writing close packet'); //!!DEBUG
     self.write([{ type: 'close' }]);
   }
 
   if ('open' == this.readyState) {
-    debug('transport open - closing'); //!!DEBUG
     close();
   } else {
     // in case we're trying to close while
     // handshaking is in progress (GH-164)
-    debug('transport not open - deferring close'); //!!DEBUG
     this.once('open', close);
   }
 };
@@ -1876,8 +1834,8 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":19}],11:[function(require,module,exports){
-/**
+},{"../transport":5,"../util":12,"engine.io-parser":15,"global":18}],11:[function(require,module,exports){
+undefined/**
  * Module dependencies.
  */
 
@@ -1885,7 +1843,6 @@ var Transport = require('../transport')
   , WebSocket = require('ws')
   , parser = require('engine.io-parser')
   , util = require('../util')
-  , debug = require('debug')('engine.io-client:websocket'); //!!DEBUG
 
 /**
  * Module exports.
@@ -2074,8 +2031,8 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":19,"ws":22}],12:[function(require,module,exports){
-
+},{"../transport":5,"../util":12,"engine.io-parser":15,"global":18,"ws":21}],12:[function(require,module,exports){
+undefined
 var global = require('global');
 
 /**
@@ -2321,8 +2278,8 @@ exports.qsParse = function(qs){
   return qry;
 };
 
-},{"global":19,"has-cors":20}],13:[function(require,module,exports){
-// browser shim for xmlhttprequest module
+},{"global":18,"has-cors":19}],13:[function(require,module,exports){
+undefined// browser shim for xmlhttprequest module
 var hasCORS = require('has-cors');
 
 module.exports = function(opts) {
@@ -2342,133 +2299,7 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":20}],14:[function(require,module,exports){
-
-/**
- * Expose `debug()` as the module.
- */
-
-module.exports = debug;
-
-/**
- * Create a debugger with the given `name`.
- *
- * @param {String} name
- * @return {Type}
- * @api public
- */
-
-function debug(name) {
-  if (!debug.enabled(name)) return function(){};
-
-  return function(fmt){
-    var curr = new Date;
-    var ms = curr - (debug[name] || curr);
-    debug[name] = curr;
-
-    fmt = name
-      + ' '
-      + fmt
-      + ' +' + debug.humanize(ms);
-
-    // This hackery is required for IE8
-    // where `console.log` doesn't have 'apply'
-    window.console
-      && console.log
-      && Function.prototype.apply.call(console.log, console, arguments);
-  }
-}
-
-/**
- * The currently active debug mode names.
- */
-
-debug.names = [];
-debug.skips = [];
-
-/**
- * Enables a debug mode by name. This can include modes
- * separated by a colon and wildcards.
- *
- * @param {String} name
- * @api public
- */
-
-debug.enable = function(name) {
-  try {
-    localStorage.debug = name;
-  } catch(e){}
-
-  var split = (name || '').split(/[\s,]+/)
-    , len = split.length;
-
-  for (var i = 0; i < len; i++) {
-    name = split[i].replace('*', '.*?');
-    if (name[0] === '-') {
-      debug.skips.push(new RegExp('^' + name.substr(1) + '$'));
-    }
-    else {
-      debug.names.push(new RegExp('^' + name + '$'));
-    }
-  }
-};
-
-/**
- * Disable debug output.
- *
- * @api public
- */
-
-debug.disable = function(){
-  debug.enable('');
-};
-
-/**
- * Humanize the given `ms`.
- *
- * @param {Number} m
- * @return {String}
- * @api private
- */
-
-debug.humanize = function(ms) {
-  var sec = 1000
-    , min = 60 * 1000
-    , hour = 60 * min;
-
-  if (ms >= hour) return (ms / hour).toFixed(1) + 'h';
-  if (ms >= min) return (ms / min).toFixed(1) + 'm';
-  if (ms >= sec) return (ms / sec | 0) + 's';
-  return ms + 'ms';
-};
-
-/**
- * Returns true if the given mode name is enabled, false otherwise.
- *
- * @param {String} name
- * @return {Boolean}
- * @api public
- */
-
-debug.enabled = function(name) {
-  for (var i = 0, len = debug.skips.length; i < len; i++) {
-    if (debug.skips[i].test(name)) {
-      return false;
-    }
-  }
-  for (var i = 0, len = debug.names.length; i < len; i++) {
-    if (debug.names[i].test(name)) {
-      return true;
-    }
-  }
-  return false;
-};
-
-// persist
-
-if (window.localStorage) debug.enable(localStorage.debug);
-
-},{}],15:[function(require,module,exports){
+},{"has-cors":19}],14:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -2632,11 +2463,11 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{"indexof":21}],16:[function(require,module,exports){
+},{"indexof":20}],15:[function(require,module,exports){
 
 module.exports = require('./lib/');
 
-},{"./lib/":17}],17:[function(require,module,exports){
+},{"./lib/":16}],16:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2805,7 +2636,7 @@ exports.decodePayload = function (data, callback) {
 
 };
 
-},{"./keys":18}],18:[function(require,module,exports){
+},{"./keys":17}],17:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -2826,7 +2657,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 
 /**
  * Returns `this`. Execute this without a "context" (i.e. without it being
@@ -2836,7 +2667,7 @@ module.exports = Object.keys || function keys (obj){
 
 module.exports = (function () { return this; })();
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -2855,7 +2686,7 @@ var global = require('global');
 module.exports = 'XMLHttpRequest' in global &&
   'withCredentials' in new global.XMLHttpRequest();
 
-},{"global":19}],21:[function(require,module,exports){
+},{"global":18}],20:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -2866,7 +2697,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],22:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 
 /**
  * Module dependencies.
