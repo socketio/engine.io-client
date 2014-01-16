@@ -4,6 +4,10 @@ REPORTER = dot
 build:
 	@./node_modules/.bin/browserify --standalone eio -o engine.io.js .
 
+build-nodebug:
+	@./node_modules/.bin/browserify --transform ./make-nodebug.js --standalone eio -o engine.io.nodebug.js .
+
+
 test:
 	@./node_modules/.bin/mocha \
 		--reporter $(REPORTER) \
