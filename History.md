@@ -1,4 +1,38 @@
 
+0.8.0 / 2014-01-05
+==================
+
+ * socket: emit upgrade errors as `upgradeError` instead of `error`
+
+0.7.14 / 2014-01-01
+===================
+
+ * test: increase timeouts for network tests
+ * test: whitelist globals
+ * test: improve socket closing test
+ * polling: improve url timestamp for ie11 and allow force disabling
+ * polling-xhr: handle errors for xhr creation (fixes `access denied` issues)
+ * polling-xhr: style
+ * socket: more instrumentation for transport creation
+ * socket: allow explicit `false` for `timestampRequests`
+ * socket: accept `null` as first argument
+ * Makefile: cleanup
+ * .travis: deprecate 0.6
+
+0.7.13 / 2013-12-20
+===================
+
+ * use `jsonp` in favor of `XDomainRequest` to preserve `Cookie`
+   headers in all situations [3rd-eden] (fixes #217)
+ * run zuul tests after node tests [defunctzombie]
+ * add zuul support for easier browser testing [defunctzombie]
+
+0.7.12 / 2013-11-11
+===================
+
+ * engine.io: updated build to fix WebSocket constructor issue
+ * package: move browserify into devDeps
+
 0.7.11 / 2013-11-06
 ===================
 

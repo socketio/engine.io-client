@@ -1,4 +1,8 @@
 
+var expect = require('expect.js');
+var eio = require('../');
+var env = require('./support/env');
+
 describe('Transport', function () {
 
   describe('public constructors', function () {
@@ -21,6 +25,7 @@ describe('Transport', function () {
         , hostname: 'localhost'
         , secure: false
         , query: { sid: 'test' }
+        , timestampRequests: false
       });
       expect(polling.uri()).to.be('http://localhost/engine.io?sid=test');
     });
@@ -32,6 +37,7 @@ describe('Transport', function () {
         , secure: false
         , query: { sid: 'test' }
         , port: 80
+        , timestampRequests: false
       });
       expect(polling.uri()).to.be('http://localhost/engine.io?sid=test');
     });
@@ -43,6 +49,7 @@ describe('Transport', function () {
         , secure: false
         , query: { sid: 'test' }
         , port: 3000
+        , timestampRequests: false
       });
       expect(polling.uri()).to.be('http://localhost:3000/engine.io?sid=test');
     });
@@ -54,6 +61,7 @@ describe('Transport', function () {
         , secure: true
         , query: { sid: 'test' }
         , port: 443
+        , timestampRequests: false
       });
       expect(polling.uri()).to.be('https://localhost/engine.io?sid=test');
     });
@@ -74,6 +82,7 @@ describe('Transport', function () {
         , hostname: 'test'
         , secure: false
         , query: { transport: 'websocket' }
+        , timestampRequests: false
       });
       expect(ws.uri()).to.be('ws://test/engine.io?transport=websocket');
     });
@@ -84,6 +93,7 @@ describe('Transport', function () {
         , hostname: 'test'
         , secure: true
         , query: {}
+        , timestampRequests: false
       });
       expect(ws.uri()).to.be('wss://test/engine.io');
     });
@@ -99,6 +109,8 @@ describe('Transport', function () {
     });
   });
 
+// these are server only
+if (!env.browser) {
   describe('options', function () {
     it('should accept an `agent` option for WebSockets', function (done) {
       var polling = new eio.transports.websocket({
@@ -125,5 +137,6 @@ describe('Transport', function () {
       polling.doOpen();
     });
   });
+}
 
 });

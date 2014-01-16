@@ -1,5 +1,4 @@
 
-TESTS = $(shell find test/*.js -depth 1 -type f ! -name 'common.js')
 REPORTER = dot
 
 build:
@@ -7,9 +6,9 @@ build:
 
 test:
 	@./node_modules/.bin/mocha \
-		--require ./test/common \
 		--reporter $(REPORTER) \
-		$(TESTS)
+		test/index.js
+	@./node_modules/.bin/zuul -- test/index.js
 
 test-cov:
 	@./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- \
@@ -17,7 +16,4 @@ test-cov:
 		--reporter $(REPORTER) \
 		$(TESTS)
 
-test-browser:
-	@./node_modules/.bin/serve test/
-
-.PHONY: test test-browser clean
+.PHONY: test
