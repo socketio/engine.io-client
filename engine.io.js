@@ -103,31 +103,9 @@ function Socket(uri, opts){
     uri = null;
   }
 
-  if (uri) {
-    uri = util.parseUri(uri);
-    opts.host = uri.host;
-    opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
-    opts.port = uri.port;
-    if (uri.query) opts.query = uri.query;
-  }
-
-  this.secure = null != opts.secure ? opts.secure :
-    (global.location && 'https:' == location.protocol);
-
-  if (opts.host) {
-    var pieces = opts.host.split(':');
-    opts.hostname = pieces.shift();
-    if (pieces.length) opts.port = pieces.pop();
-  }
+  this.processUri(uri);
 
   this.agent = opts.agent || false;
-  this.hostname = opts.hostname ||
-    (global.location ? location.hostname : 'localhost');
-  this.port = opts.port || (global.location && location.port ?
-       location.port :
-       (this.secure ? 443 : 80));
-  this.query = opts.query || {};
-  if ('string' == typeof this.query) this.query = util.qsParse(this.query);
   this.upgrade = false !== opts.upgrade;
   this.path = (opts.path || '/engine.io').replace(/\/$/, '') + '/';
   this.forceJSONP = !!opts.forceJSONP;
@@ -176,6 +154,34 @@ Socket.parser = require('engine.io-parser');
  * @api private
  */
 
+Socket.prototype.processUri = function(uri) {
+  var host, port, secure, query, hostname;
+  if (uri) {
+    uri = util.parseUri(uri);
+    host = uri.host;
+    secure = uri.protocol == 'https' || uri.protocol == 'wss';
+    port = uri.port;
+    if (uri.query) query = uri.query;
+  }
+
+  this.secure = undefined != secure ? secure :
+    (global.location && 'https:' == location.protocol);
+
+  if (host) {
+    var pieces = host.split(':');
+    hostname = pieces.shift();
+    if (pieces.length) port = pieces.pop();
+  }
+
+  this.hostname = hostname ||
+    (global.location ? location.hostname : 'localhost');
+  this.port = port || (global.location && location.port ?
+       location.port :
+       (this.secure ? 443 : 80));
+  this.query = query || {};
+  if ('string' == typeof this.query) this.query = util.qsParse(this.query);
+};
+
 Socket.prototype.createTransport = function (name) {
   debug('creating transport "%s"', name);
   var query = clone(this.query);
@@ -222,7 +228,8 @@ function clone (obj) {
  * @api private
  */
 
-Socket.prototype.open = function () {
+Socket.prototype.open = function (uri) {
+  if (uri) this.processUri(uri);
   var transport = this.transports[0];
   this.readyState = 'opening';
   var transport = this.createTransport(transport);
