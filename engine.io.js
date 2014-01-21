@@ -1613,13 +1613,19 @@ if (xobject) {
   Request.requestsCount = 0;
   Request.requests = {};
 
-  global.attachEvent('onunload', function(){
+  var unloadHandler = function(){
     for (var i in Request.requests) {
       if (Request.requests.hasOwnProperty(i)) {
         Request.requests[i].abort();
       }
     }
-  });
+  };
+
+  if (global.addEventListener) {
+    global.addEventListener('unload', unloadHandler);
+  } else if (global.attachEvent) {
+    global.attachEvent('onunload', unloadHandler);
+  }
 }
 
 },{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":19,"xmlhttprequest":13}],10:[function(require,module,exports){
@@ -2102,10 +2108,10 @@ exports.keys = Object.keys || function (obj) {
  */
 
 exports.on = function (element, event, fn, capture) {
-  if (element.attachEvent) {
-    element.attachEvent('on' + event, fn);
-  } else if (element.addEventListener) {
+  if (element.addEventListener) {
     element.addEventListener(event, fn, capture);
+  } else if (element.attachEvent) {
+    element.attachEvent('on' + event, fn);
   }
 };
 
