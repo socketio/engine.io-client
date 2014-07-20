@@ -5,16 +5,57 @@ var env = require('./support/env');
 
 describe('Transport', function () {
 
+  describe('rememberUpgrade', function () {
+    it('should remember websocket connection', function (done) {
+      var socket = new eio.Socket();
+      expect(socket.transport.name).to.be('polling');
+
+      var timeout = setTimeout(function(){
+        socket.close();
+        done();
+      }, 300);
+
+      socket.on('upgrade', function (transport) {
+        clearTimeout(timeout);
+        socket.close();
+        if(transport.name == 'websocket') {
+          var socket2 = new eio.Socket({ 'rememberUpgrade': true });
+          expect(socket2.transport.name).to.be('websocket');
+        }
+        done();
+      });
+    });
+
+    it('should not remember websocket connection', function (done) {
+      var socket = new eio.Socket();
+      expect(socket.transport.name).to.be('polling');
+
+      var timeout = setTimeout(function(){
+        socket.close();
+        done();
+      }, 300);
+
+      socket.on('upgrade', function (transport) {
+        clearTimeout(timeout);
+        socket.close();
+        if(transport.name == 'websocket') {
+          var socket2 = new eio.Socket({ 'rememberUpgrade': false });
+          expect(socket2.transport.name).to.not.be('websocket');
+        }
+        done();
+      });
+    });
+  });
+
   describe('public constructors', function () {
     it('should include Transport', function () {
       expect(eio.Transport).to.be.a('function');
     });
 
-    it('should include Polling, WebSocket and FlashSocket', function () {
+    it('should include Polling and WebSocket', function () {
       expect(eio.transports).to.be.an('object');
       expect(eio.transports.polling).to.be.a('function');
       expect(eio.transports.websocket).to.be.a('function');
-      expect(eio.transports.flashsocket).to.be.a('function');
     });
   });
 
@@ -27,7 +68,7 @@ describe('Transport', function () {
         , query: { sid: 'test' }
         , timestampRequests: false
       });
-      expect(polling.uri()).to.be('http://localhost/engine.io?sid=test');
+      expect(polling.uri()).to.contain('http://localhost/engine.io?sid=test');
     });
 
     it('should generate an http uri w/o a port', function () {
@@ -39,7 +80,7 @@ describe('Transport', function () {
         , port: 80
         , timestampRequests: false
       });
-      expect(polling.uri()).to.be('http://localhost/engine.io?sid=test');
+      expect(polling.uri()).to.contain('http://localhost/engine.io?sid=test');
     });
 
     it('should generate an http uri with a port', function () {
@@ -51,7 +92,7 @@ describe('Transport', function () {
         , port: 3000
         , timestampRequests: false
       });
-      expect(polling.uri()).to.be('http://localhost:3000/engine.io?sid=test');
+      expect(polling.uri()).to.contain('http://localhost:3000/engine.io?sid=test');
     });
 
     it('should generate an https uri w/o a port', function () {
@@ -63,7 +104,7 @@ describe('Transport', function () {
         , port: 443
         , timestampRequests: false
       });
-      expect(polling.uri()).to.be('https://localhost/engine.io?sid=test');
+      expect(polling.uri()).to.contain('https://localhost/engine.io?sid=test');
     });
 
     it('should generate a timestamped uri', function () {
@@ -73,7 +114,7 @@ describe('Transport', function () {
         , timestampParam: 't'
         , timestampRequests: true
       });
-      expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?t=[0-9]+/);
+      expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?(j=[0-9]+&)?(t=[0-9]+)/);
     });
 
     it('should generate a ws uri', function () {

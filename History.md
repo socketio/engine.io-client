@@ -1,4 +1,103 @@
 
+1.3.1 / 2014-06-19
+==================
+
+ * transport: catch utf8 decode errors
+
+1.3.0 / 2014-06-13
+==================
+
+ * smaller inherits utility
+ * fix a test for ws
+ * upgrade emitter dep to not rely on tarball
+
+1.2.2 / 2014-05-30
+==================
+
+ * package: bump `engine.io-parser` for binary utf8 fix
+
+1.2.1 / 2014-05-22
+==================
+
+ * build
+
+1.2.0 / 2014-05-18
+==================
+
+ * removed flashsocket, moving to userland
+ * new build
+
+1.1.1 / 2014-05-14
+==================
+
+ * jsonp-polling: fixed newline double escaping
+ * package: bump parser
+ * remove legacy Socket#onopen call
+ * added tests for multibyte strings
+
+1.1.0 / 2014-04-27
+==================
+
+ * bump zuul version
+ * renamed removeAllListeners to cleanup
+ * use inherits package instead of inherit
+ * removed all references to util.js
+ * fix if statement in FlashWS.ready method
+ * polling-jsonp: prevent spurious errors from being emitted when the window is unloaded
+ * polling-xhr: fix a comment and remove unneeded `document` reference
+ * enforce cache busting for all user agents
+ * JSONP and test fixes for fails in IE
+ * package: bump `engine.io-parser`
+ * polling-xhr: abort the request when the window is unloaded
+
+1.0.5 / 2014-03-18
+==================
+
+ * package: bump `engine.io-parser` for android binary fix
+
+1.0.4 / 2014-03-14
+==================
+
+ * no base64 encoding for no reason when using websockets
+
+1.0.3 / 2014-03-12
+==================
+
+ * fix browserify
+
+1.0.2 / 2014-03-12
+==================
+
+ * bump `engine.io-parser`
+ * made `parseJSON` and `parseURI` from `util` their own modules [gkoren]
+ * clean up tests
+ * clean up browserify
+
+1.0.1 / 2014-03-06
+==================
+
+ * package: bump `engine.io-parser`
+
+1.0.0 / 2014-03-06
+==================
+
+ * run browserify without shims
+ * emit socket upgrade event after upgrade done
+ * better feature detection for XHR2
+ * added `rememberUpgrade` option
+ * binary support
+
+0.9.0 / 2014-02-09
+==================
+
+ * Fix simple `host:port` URLs and IPV6 [bmalehorn]
+ * Fix XHR cleanup method [poohlty]
+ * Match semantics of `close` event with `WebSocket`. If an error occurs
+   and `open` hadn't fired before, we still emit `close` as per
+   WebSocket spec [mokesmokes].
+ * Removed SPEC (now in `engine.io-protocol` repository)
+ * Remove `Socket#open` docs (private API) [mokesmokes]
+
 0.8.2 / 2014-01-18
 ==================
 

@@ -1,7 +1,7 @@
 {
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
-  "version": "0.8.2",
+  "version": "1.3.1",
   "homepage": "http://socket.io",
   "contributors": [
     {
@@ -22,13 +22,12 @@
     }
   ],
   "dependencies": {
-    "global": "https://github.com/component/global/archive/v2.0.1.tar.gz",
     "has-cors": "1.0.3",
     "ws": "0.4.31",
     "xmlhttprequest": "https://github.com/LearnBoost/node-XMLHttpRequest/archive/0f36d0b5ebc03d85f860d42a64ae9791e1daa433.tar.gz",
-    "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
+    "component-emitter": "1.1.2",
     "indexof": "0.0.1",
-    "engine.io-parser": "0.3.0",
+    "engine.io-parser": "1.1.0",
     "debug": "0.7.4",
     "parseuri": "0.0.4",
     "parsejson": "0.0.1",
@@ -36,34 +35,20 @@
     "component-inherit": "0.0.3"
   },
   "devDependencies": {
-    "zuul": "1.5.2",
+    "zuul": "1.6.3",
     "mocha": "1.16.2",
     "expect.js": "0.2.0",
     "istanbul": "0.2.3",
-    "browserify": "2.35.1",
-    "engine.io": "0.8.2",
-    "express": "3.4.8"
+    "browserify": "4.2.1",
+    "engine.io": "Automattic/engine.io#08afdc",
+    "express": "3.4.8",
+    "blob": "0.0.2"
   },
   "scripts": {
     "test": "make test"
   },
   "browser": {
     "xmlhttprequest": "./lib/xmlhttprequest.js"
-  },
-  "component": {
-    "scripts": {
-      "engine.io/index.js": "lib/index.js",
-      "engine.io/socket.js": "lib/socket.js",
-      "engine.io/transport.js": "lib/transport.js",
-      "engine.io/emitter.js": "lib/emitter.js",
-      "engine.io/util.js": "lib/util.js",
-      "engine.io/transports/index.js": "lib/transports/index.js",
-      "engine.io/transports/polling.js": "lib/transports/polling.js",
-      "engine.io/transports/polling-xhr.js": "lib/transports/polling-xhr.js",
-      "engine.io/transports/polling-jsonp.js": "lib/transports/polling-jsonp.js",
-      "engine.io/transports/websocket.js": "lib/transports/websocket.js",
-      "engine.io/transports/flashsocket.js": "lib/transports/flashsocket.js"
-    }
   },
   "repository": {
     "type": "git",
