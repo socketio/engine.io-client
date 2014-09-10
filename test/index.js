@@ -21,10 +21,8 @@ if (env.browser) {
   require('./xmlhttprequest');
   if (global.ArrayBuffer) {
     require('./arraybuffer');
-  } else {
-    require('./binary-fallback');
   }
-
+  require('./binary-fallback');
   if (Blob) {
     require('./blob');
   }

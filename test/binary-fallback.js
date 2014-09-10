@@ -4,7 +4,7 @@ var eio = require('../');
 describe('binary fallback', function() {
   this.timeout(10000);
 
-  it('should be able to receive binary data when ArrayBuffer not available (polling)', function(done) {
+  it('should be able to receive binary data when ArrayBuffer not available or base64 is forced (polling)', function(done) {
     var socket = new eio.Socket({ forceBase64: true });
     socket.on('open', function() {
       socket.send('give binary');
