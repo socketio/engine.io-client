@@ -1335,14 +1335,22 @@ Request.prototype.create = function(){
       };
     } else {
       xhr.onreadystatechange = function(){
-        if (4 != xhr.readyState) return;
-        if (200 == xhr.status || 1223 == xhr.status) {
-          self.onLoad();
-        } else {
+        try {
+          if (4 != xhr.readyState) return;
+          if (200 == xhr.status || 1223 == xhr.status) {
+            self.onLoad();
+          } else {
+            // make sure the `error` event handler that's user-set
+            // does not throw in the same tick and gets caught here
+            setTimeout(function(){
+              self.onError(xhr.status);
+            }, 0);
+          }
+        } catch (e) {
           // make sure the `error` event handler that's user-set
           // does not throw in the same tick and gets caught here
           setTimeout(function(){
-            self.onError(xhr.status);
+            self.onError(e);
           }, 0);
         }
       };
