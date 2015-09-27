@@ -73,11 +73,8 @@ function Socket(uri, opts){
     (global.location && 'https:' == location.protocol);
 
   if (opts.host) {
-    var pieces = opts.host.split(':');
-    opts.hostname = pieces.shift();
-    if (pieces.length) {
-      opts.port = pieces.pop();
-    } else if (!opts.port) {
+    opts.hostname = opts.host;
+    if (!opts.port) {
       // if no port is specified manually, use the protocol default
       opts.port = this.secure ? '443' : '80';
     }
@@ -1081,7 +1078,7 @@ JSONPPolling.prototype.doPoll = function () {
   this.script = script;
 
   var isUAgecko = 'undefined' != typeof navigator && /gecko/i.test(navigator.userAgent);
-  
+
   if (isUAgecko) {
     setTimeout(function () {
       var iframe = document.createElement('iframe');
