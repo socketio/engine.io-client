@@ -3,11 +3,9 @@
  * Module dependencies.
  */
 
-var browserify = require('browserify');
-var derequire = require('derequire');
+var webpack = require('webpack');
 var concat = require('concat-stream');
 var path = require.resolve('../');
-var babelify = require("babelify");
 
 /**
  * Module exports.
@@ -23,22 +21,19 @@ module.exports = build;
 
 
 function build(fn){
-  var bundle = browserify({
-    builtins: false,
-    entries: [ path ],
-    insertGlobalVars: { global: glob },
-    standalone: 'eio'
-  })
-  .transform(babelify)
-  .bundle();
-
-  bundle.on('error', function (err) {
-    fn(err);
+  var bundle = webpack({
+    entry: "../index.js",
+    output: {
+        path: "../",
+        filename: "engine.io.js"
+    }
+  }, function(err, stats) {
+    if (err) {
+      fn(err);
+    } else{
+      fn(null, stats.toString({ source: true }));
+    }
   });
-
-  bundle.pipe(concat({ encoding: 'string' }, function (out) {
-    fn(null, derequire(out));
-  }));
 }
 
 /**
