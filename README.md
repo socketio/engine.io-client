@@ -223,6 +223,8 @@ Exposed as `eio` in the browser standalone build.
         (see [ws module](https://github.com/einaros/ws) api docs). Set to `false` to disable. (`true`)
         - `threshold` (`Number`): data is compressed only if the byte size is above this value. This option is ignored on the browser. (`1024`)
       - `extraHeaders` (`Object`): Headers that will be passed for each request to the server (via xhr-polling and via websockets). These values then can be used during handshake or for special proxies. Can only be used in Node.js client environment.
+      - `forceNode` (`Boolean`): defaults to `false` (NodeJS only). 
+        Uses NodeJS implementation for websockets - even if there is a native Browser-Websocket available, which is preferred by default over the NodeJS implementation. (This is useful when using hybrid platforms like nw.js or electron)
 - `send`
     - Sends a message to the server
     - **Parameters**
