@@ -159,7 +159,7 @@ Exposed as `eio` in the browser standalone build.
     - `String` | `ArrayBuffer`: utf-8 encoded data or ArrayBuffer containing
       binary data
 - `close`
-  - Fired upon disconnection. In compliance with the WebSocket API spec, this event may be 
+  - Fired upon disconnection. In compliance with the WebSocket API spec, this event may be
     fired even if the `open` event does not occur (i.e. due to connection error or `close()`).
 - `error`
   - Fired when an error occurs.
@@ -258,8 +258,9 @@ run the tests locally using the following command.
 ```
 
 Additionally, `engine.io-client` has a standalone test suite you can run
-with `make test` which will run node.js and browser tests. You must have zuul setup with
-a saucelabs account.
+with `make test` which will run node.js and browser tests. You must have zuul setup with a saucelabs account.
+
+It is also good practice to check for CVEs if any of the dependencies change. To do this use `npm run scan_packages`.
 
 ## Support
 
