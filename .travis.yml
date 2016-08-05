@@ -44,3 +44,5 @@ matrix:
     env: BROWSER_NAME=android BROWSER_VERSION=4.3
   - node_js: '0.10'
     env: BROWSER_NAME=android BROWSER_VERSION=4.4
+after_script:
+  - npm run scan_packages
