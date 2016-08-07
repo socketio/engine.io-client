@@ -187,7 +187,7 @@ Exposed as `eio` in the browser standalone build.
       - `agent` (`http.Agent`): `http.Agent` to use, defaults to `false` (NodeJS only)
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
-      - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
+      - `forceJSONP` (`Boolean`): defaults to false. forces JSONP for polling transport. It is recommended you turn this on when XDomainRequest causes troubles for IE8 (not sending cookies etc) for example.
       - `jsonp` (`Boolean`): determines whether to use JSONP when
         necessary for polling. If disabled (by settings to false) an error will
         be emitted (saying "No transports available") if no other transports
