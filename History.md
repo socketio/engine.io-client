@@ -1,4 +1,23 @@
 
+1.7.2 / 2016-10-24
+===================
+
+  * [fix] Set accept header to */* to support react app proxy (#508)
+  * [fix] remove a workaround for ios (#465)
+  * [fix] onPacket now emits data on 'closing' state as well (#484)
+  * [fix] Obfuscate `ActiveXObject` occurrences (#509)
+  * [docs] Add missing `onlyBinaryUpgrades` option in the docs (#510)
+  * [chore] Add Github issue and PR templates (#511)
+
+1.7.1 / 2016-10-20
+===================
+
+  * [fix] Define "requestsCount" var and "requests" hash unconditionally (#490)
+  * [perf] Add all properties to the socket in the constructor (#488)
+  * [chore] Update zuul browser settings (#504)
+  * [chore] Bump engine.io-parser to 1.3.1 (#505)
+  * [chore] Use more-specific imports for StealJS compatibility (#467)
+
 1.7.0 / 2016-10-05
 ===================
 
