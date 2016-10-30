@@ -21,7 +21,7 @@ describe('connection', function () {
     socket.on('open', function () {
       socket.send('cash money €€€');
       socket.on('message', function (data) {
-        if ('hi' === data) return;
+        if (data === 'hi') return;
         expect(data).to.be('cash money €€€');
         socket.close();
         done();
@@ -34,7 +34,7 @@ describe('connection', function () {
     socket.on('open', function () {
       socket.send('\uD800\uDC00-\uDB7F\uDFFF\uDB80\uDC00-\uDBFF\uDFFF\uE000-\uF8FF');
       socket.on('message', function (data) {
-        if ('hi' === data) return;
+        if (data === 'hi') return;
         expect(data).to.be('\uD800\uDC00-\uDB7F\uDFFF\uDB80\uDC00-\uDBFF\uDFFF\uE000-\uF8FF');
         socket.close();
         done();
