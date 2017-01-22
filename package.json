@@ -65,6 +65,7 @@
     "zuul-ngrok": "4.0.0"
   },
   "scripts": {
+    "postversion": "make build",
     "test": "gulp test"
   },
   "browser": {
