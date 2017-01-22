@@ -30,8 +30,6 @@ matrix:
     env: BROWSER_NAME=ie BROWSER_VERSION=10
   - node_js: 'node'
     env: BROWSER_NAME=ie BROWSER_VERSION=11
-  - node_js: '0.12'
-    env: BROWSER_NAME=microsoftedge BROWSER_VERSION=latest
   - node_js: 'node'
     env: BROWSER_NAME=iphone BROWSER_VERSION=8.4
   - node_js: 'node'
