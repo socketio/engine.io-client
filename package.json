@@ -65,7 +65,7 @@
     "zuul-ngrok": "4.0.0"
   },
   "scripts": {
-    "postversion": "make build",
+    "postversion": "rm engine.io.js && make build",
     "test": "gulp test"
   },
   "browser": {
