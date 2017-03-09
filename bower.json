@@ -1,0 +1,14 @@
+{
+  "name": "engine.io",
+  "description": "Client for the realtime Engine",
+  "version": "1.0.1",
+  "main": "engine.io.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "support",
+    "test"
+  ],
+  "homepage": "https://github.com/LearnBoost/engine.io-client",
+  "dependencies"  : {}
+}
