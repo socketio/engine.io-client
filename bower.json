@@ -1,0 +1,40 @@
+{
+  "name": "engine.io-client",
+  "main": "engine.io.js",
+  "version": "1.5.1",
+  "homepage": "http://socket.io",
+  "authors": [
+    {
+      "name": "Guillermo Rauch",
+      "email": "rauchg@gmail.com"
+    },
+    {
+      "name": "Vladimir Dronnikov",
+      "email": "dronnikov@gmail.com"
+    },
+    {
+      "name": "Christoph Dorn",
+      "web": "https://github.com/cadorn"
+    },
+    {
+      "name": "Mark Mokryn",
+      "email": "mokesmokes@gmail.com"
+    }
+  ],
+  "description": "Client for the realtime Engine",
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Automattic/engine.io-client.git"
+  }
+}
