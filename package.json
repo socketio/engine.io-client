@@ -64,10 +64,14 @@
     "zuul-builder-webpack": "^1.2.0",
     "zuul-ngrok": "4.0.0"
   },
+  "optionalDependencies": {
+    "uws": "0.12.0"
+  },
   "scripts": {
     "test": "gulp test"
   },
   "browser": {
+    "uws": false,
     "ws": false,
     "xmlhttprequest-ssl": "./lib/xmlhttprequest.js"
   },
