@@ -38,7 +38,7 @@ const FILES_TO_CLEAN = [
 ];
 
 gulp.task('test', ['lint'], function () {
-  if (process.env.hasOwnProperty('BROWSER_NAME')) {
+  if (process.env.hasOwnProperty('BROWSERS')) {
     return testZuul();
   } else {
     return testNode();
