@@ -62,9 +62,19 @@ describe('connection', function () {
   if (global.Worker) {
     it('should work in a worker', function (done) {
       var worker = new Worker('/test/support/worker.js');
+      var msg = 0;
+      var utf8yay = 'пойду сать всем мпокойной ночи';
       worker.onmessage = function (e) {
-        expect(e.data);
-        done();
+        if (msg === 0) {
+          msg++;
+          expect(e.data).to.be('hi');
+        } else if (msg < 10) {
+          msg++;
+          expect(e.data).to.be(utf8yay);
+        } else {
+          expect(e.data).to.be(utf8yay);
+          done();
+        }
       };
     });
   }
