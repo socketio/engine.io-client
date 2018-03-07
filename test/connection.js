@@ -65,17 +65,25 @@ describe('connection', function () {
       var msg = 0;
       var utf8yay = 'пойду сать всем мпокойной ночи';
       worker.onmessage = function (e) {
-        if (msg === 0) {
-          msg++;
+        msg++;
+        if (msg === 1) {
           expect(e.data).to.be('hi');
-        } else if (msg < 10) {
-          msg++;
+        } else if (msg < 11) {
           expect(e.data).to.be(utf8yay);
+        } else if (msg < 20) {
+          testBinary(e.data);
         } else {
-          expect(e.data).to.be(utf8yay);
+          testBinary(e.data);
           done();
         }
       };
+
+      function testBinary(data) {
+        var byteArray = new Uint8Array(data);
+        for (var i = 0; i < byteArray.byteLength; i++) {
+          expect(byteArray[i]).to.be(i);
+        }
+      }
     });
   }
 
