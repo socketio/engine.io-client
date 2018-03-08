@@ -78,7 +78,7 @@ describe('connection', function () {
         }
       };
 
-      function testBinary(data) {
+      function testBinary (data) {
         var byteArray = new Uint8Array(data);
         for (var i = 0; i < byteArray.byteLength; i++) {
           expect(byteArray[i]).to.be(i);
