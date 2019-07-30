@@ -266,6 +266,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    ca: options.ca || this.ca,
 	    ciphers: options.ciphers || this.ciphers,
 	    rejectUnauthorized: options.rejectUnauthorized || this.rejectUnauthorized,
+	    checkServerIdentity: options.checkServerIdentity || this.checkServerIdentity,
 	    perMessageDeflate: options.perMessageDeflate || this.perMessageDeflate,
 	    extraHeaders: options.extraHeaders || this.extraHeaders,
 	    forceNode: options.forceNode || this.forceNode,
@@ -1657,6 +1658,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.ca = opts.ca;
 	  this.ciphers = opts.ciphers;
 	  this.rejectUnauthorized = opts.rejectUnauthorized;
+	  this.checkServerIdentity = opts.checkServerIdentity || null;
 	  this.forceNode = opts.forceNode;
 
 	  // results of ReactNative environment detection
@@ -4393,7 +4395,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  opts.ca = this.ca;
 	  opts.ciphers = this.ciphers;
 	  opts.rejectUnauthorized = this.rejectUnauthorized;
-	  opts.checkServerIdentity = this.checkServerIdentity;
+	  if (this.checkServerIdentity) {
+	    opts.checkServerIdentity = this.checkServerIdentity;
+	  }
 	  if (this.extraHeaders) {
 	    opts.headers = this.extraHeaders;
 	  }
