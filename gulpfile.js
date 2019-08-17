@@ -12,7 +12,7 @@ const eslint = require('gulp-eslint');
 
 const BUILD_TARGET_DIR = './';
 
-function build() {
+function build () {
   return gulp.src('lib/**/*.js')
     .pipe(webpack(require('./support/webpack.config.js')))
     .pipe(gulp.dest(BUILD_TARGET_DIR));
@@ -38,7 +38,7 @@ const FILES_TO_CLEAN = [
 
 // gulp.task('test', ['lint'], test);
 
-function test(done) {
+function test (done) {
   if (process.env.hasOwnProperty('BROWSERS')) {
     return testZuul(done);
   } else {
@@ -50,7 +50,7 @@ exports.test = gulp.series(lint, test);
 
 // gulp.task('lint', lint);
 
-function lint() {
+function lint () {
   return gulp.src([
     '*.js',
     'lib/**/*.js',
@@ -69,7 +69,7 @@ exports['test-node'] = gulp.series(testNode);
 // gulp.task('test-zuul', testZuul);
 exports['test-zuul'] = gulp.series(testZuul);
 
-function testNode(done) {
+function testNode (done) {
   return gulp.src(TEST_FILE, {read: false})
     .pipe(mocha(MOCHA_OPTS))
     // following lines to fix gulp-mocha not terminating (see gulp-mocha webpage)
@@ -87,7 +87,7 @@ function testNode(done) {
 }
 
 // runs zuul through shell process
-function testZuul(done) {
+function testZuul (done) {
   const ZUUL_CMD = './node_modules/zuul/bin/zuul';
   const zuulChild = child.spawn(ZUUL_CMD, [TEST_FILE], {stdio: 'inherit'});
   zuulChild.on('exit', function (code) {
@@ -100,13 +100,13 @@ function testZuul(done) {
   });
 }
 
-function cleanFiles(globArray) {
+function cleanFiles (globArray) {
   return del.sync(globArray);
 }
 
 // gulp.task('istanbul-pre-test', istanbulPreTest);
 
-function istanbulPreTest() {
+function istanbulPreTest () {
   return gulp.src(['lib/**/*.js'])
   // Covering files
     .pipe(istanbul())
@@ -116,7 +116,7 @@ function istanbulPreTest() {
 
 // gulp.task('test-cov', ['istanbul-pre-test'], testCov);
 
-function testCov(done) {
+function testCov (done) {
   return gulp.src(TEST_FILE)
     .pipe(mocha(MOCHA_OPTS))
     .pipe(istanbul.writeReports())
