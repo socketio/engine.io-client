@@ -92,11 +92,8 @@ function testZuul (done) {
   const zuulChild = child.spawn(ZUUL_CMD, [TEST_FILE], {stdio: 'inherit'});
   zuulChild.on('exit', function (code) {
     cleanFiles(FILES_TO_CLEAN);
-    if (code === 0) {
-      done();
-    } else {
-      done.fail(code);
-    }
+    done();
+    process.exit(code);
   });
 }
 
@@ -123,7 +120,8 @@ function testCov (done) {
     .once('error', function (err) {
       cleanFiles(FILES_TO_CLEAN);
       console.error(err.stack);
-      done.fail();
+      done();
+      process.exit(1);
     })
     .once('end', function () {
       cleanFiles(FILES_TO_CLEAN);
