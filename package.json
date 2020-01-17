@@ -67,16 +67,12 @@
   "scripts": {
     "test": "gulp test"
   },
-  "browser": {
-    "ws": false,
-    "xmlhttprequest-ssl": "./lib/xmlhttprequest.js"
-  },
+  "browser": "engine.io.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/socketio/engine.io-client.git"
   },
   "files": [
-    "index.js",
     "lib/",
     "engine.io.js"
   ]
