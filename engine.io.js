@@ -4453,19 +4453,23 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  var uri = this.uri();
 	  var protocols = this.protocols;
-	  var opts = {
-	    agent: this.agent,
-	    perMessageDeflate: this.perMessageDeflate
-	  };
 
-	  // SSL options for Node.js client
-	  opts.pfx = this.pfx;
-	  opts.key = this.key;
-	  opts.passphrase = this.passphrase;
-	  opts.cert = this.cert;
-	  opts.ca = this.ca;
-	  opts.ciphers = this.ciphers;
-	  opts.rejectUnauthorized = this.rejectUnauthorized;
+	  var opts = {};
+
+	  if (!this.isReactNative) {
+	    opts.agent = this.agent;
+	    opts.perMessageDeflate = this.perMessageDeflate;
+
+	    // SSL options for Node.js client
+	    opts.pfx = this.pfx;
+	    opts.key = this.key;
+	    opts.passphrase = this.passphrase;
+	    opts.cert = this.cert;
+	    opts.ca = this.ca;
+	    opts.ciphers = this.ciphers;
+	    opts.rejectUnauthorized = this.rejectUnauthorized;
+	  }
+
 	  if (this.extraHeaders) {
 	    opts.headers = this.extraHeaders;
 	  }
