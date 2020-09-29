@@ -30,8 +30,8 @@
     "engine.io-parser": "~2.2.0",
     "has-cors": "1.1.0",
     "indexof": "0.0.1",
-    "parseqs": "0.0.5",
-    "parseuri": "0.0.5",
+    "parseqs": "0.0.6",
+    "parseuri": "0.0.6",
     "ws": "~6.1.0",
     "xmlhttprequest-ssl": "~1.5.4",
     "yeast": "0.1.2"
