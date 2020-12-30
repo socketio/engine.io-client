@@ -1521,7 +1521,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  debug('polling got data %s', data);
 	  var callback = function (packet, index, total) {
 	    // if its the first message we consider the transport open
-	    if ('opening' === self.readyState) {
+	    if ('opening' === self.readyState && packet.type === 'open') {
 	      self.onOpen();
 	    }
 
