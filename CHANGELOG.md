@@ -1,3 +1,11 @@
+## [3.5.1](https://github.com/socketio/engine.io-client/compare/3.5.0...3.5.1) (2021-03-02)
+
+
+### Bug Fixes
+
+* replace default nulls in SSL options with undefineds ([d0c551c](https://github.com/socketio/engine.io-client/commit/d0c551cca1e37301e8b28843c8f6e7ad5cf561d3))
+
+
 # [3.5.0](https://github.com/socketio/engine.io-client/compare/3.4.4...3.5.0) (2020-12-30)
 
 
