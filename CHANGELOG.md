@@ -1,3 +1,11 @@
+## [4.1.3](https://github.com/socketio/engine.io-client/compare/4.1.2...4.1.3) (2021-03-31)
+
+
+### Bug Fixes
+
+* ignore packets when the transport is silently closed ([46e6de0](https://github.com/socketio/engine.io-client/commit/46e6de08e3786660307cf4a363ecb47646a43ca5))
+
+
 ## [4.1.2](https://github.com/socketio/engine.io-client/compare/4.1.1...4.1.2) (2021-02-25)
 
 
