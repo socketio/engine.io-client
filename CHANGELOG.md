@@ -1,3 +1,10 @@
+## [4.1.4](https://github.com/socketio/engine.io-client/compare/4.1.3...4.1.4) (2021-05-05)
+
+This release only contains a bump of `xmlhttprequest-ssl`, in order to fix the following vulnerability: https://www.npmjs.com/advisories/1665.
+
+Please note that `engine.io-client` was not directly impacted by this vulnerability, since we are always using `async: true`.
+
+
 ## [4.1.3](https://github.com/socketio/engine.io-client/compare/4.1.2...4.1.3) (2021-03-31)
 
 
