@@ -1,7 +1,6 @@
 const expect = require("expect.js");
 const eio = require("../");
 const env = require("./support/env");
-const FakeTimers = require("@sinonjs/fake-timers");
 
 // Disables eslint to capitalise constructor names
 /* eslint-disable new-cap */
