@@ -33,7 +33,7 @@
     "parseqs": "0.0.5",
     "parseuri": "0.0.5",
     "ws": "~6.1.0",
-    "xmlhttprequest-ssl": "~1.5.4",
+    "xmlhttprequest-ssl": "~1.6.3",
     "yeast": "0.1.2"
   },
   "devDependencies": {
