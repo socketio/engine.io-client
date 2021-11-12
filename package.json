@@ -7,6 +7,7 @@
   "module": "./build/esm/index.js",
   "exports": {
     "./package.json": "./package.json",
+    "./dist/engine.io.min.js": "./dist/engine.io.min.js",
     ".": {
       "import": {
         "node": "./build/esm-debug/index.js",
