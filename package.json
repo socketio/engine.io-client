@@ -80,5 +80,8 @@
     "index.js",
     "lib/",
     "engine.io.js"
-  ]
+  ],
+  "volta": {
+    "node": "10.24.1"
+  }
 }
