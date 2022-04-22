@@ -1,7 +1,10 @@
 // browser shim for xmlhttprequest module
 
 import { hasCORS } from "../contrib/has-cors.js";
-import globalThis from "../globalThis.js";
+import * as globalThisModule from "../globalThis.js";
+const globalThis =
+  globalThisModule.default ||
+  ((globalThisModule as any) as typeof globalThisModule.default);
 
 export default function(opts) {
   const xdomain = opts.xdomain;

@@ -1,4 +1,7 @@
-import globalThis from "../globalThis.js";
+import * as globalThisModule from "../globalThis.js";
+const globalThis =
+  globalThisModule.default ||
+  ((globalThisModule as any) as typeof globalThisModule.default);
 
 export const nextTick = (() => {
   const isPromiseAvailable =
