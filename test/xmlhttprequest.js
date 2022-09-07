@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var XMLHttpRequest = require('../lib/xmlhttprequest');
+var XMLHttpRequest = require('../lib/transports/xmlhttprequest');
 var env = require('./support/env');
 
 describe('XMLHttpRequest', function () {

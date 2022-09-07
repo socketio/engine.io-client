@@ -69,7 +69,7 @@
   },
   "browser": {
     "ws": false,
-    "xmlhttprequest-ssl": "./lib/xmlhttprequest.js",
+    "./lib/transports/xmlhttprequest.js": "./lib/transports/xmlhttprequest.browser.js",
     "./lib/globalThis.js": "./lib/globalThis.browser.js"
   },
   "repository": {
