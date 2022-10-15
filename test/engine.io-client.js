@@ -58,6 +58,12 @@ describe("engine.io-client", () => {
     expect(client.port).to.be("8080");
   });
 
+  it("should properly handle the trailingSlash option", () => {
+    const client = new Socket({ host: "localhost", trailingSlash: false });
+    expect(client.hostname).to.be("localhost");
+    expect(client.opts.path).to.be("/engine.io");
+  });
+
   it("should properly parse an IPv6 uri without port", () => {
     const client = new Socket("http://[::1]");
     expect(client.hostname).to.be("::1");

@@ -207,6 +207,12 @@ export interface SocketOptions {
   path: string;
 
   /**
+   * Should we add a trailing slash to the path?
+   * @default true
+   */
+  trailingSlash: boolean;
+
+  /**
    * Either a single protocol string or an array of protocol strings. These strings are used to indicate sub-protocols,
    * so that a single server can implement multiple WebSocket sub-protocols (for example, you might want one server to
    * be able to handle different types of interactions depending on the specified protocol)
@@ -323,17 +329,19 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
         upgrade: true,
         timestampParam: "t",
         rememberUpgrade: false,
+        trailingSlash: true,
         rejectUnauthorized: true,
         perMessageDeflate: {
-          threshold: 1024
+          threshold: 1024,
         },
         transportOptions: {},
-        closeOnBeforeunload: true
+        closeOnBeforeunload: true,
       },
       opts
     );
 
-    this.opts.path = this.opts.path.replace(/\/$/, "") + "/";
+    this.opts.path =
+      this.opts.path.replace(/\/$/, "") + (this.opts.trailingSlash ? "/" : "");
 
     if (typeof this.opts.query === "string") {
       this.opts.query = decode(this.opts.query);
@@ -365,7 +373,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
       if (this.hostname !== "localhost") {
         this.offlineEventListener = () => {
           this.onClose("transport close", {
-            description: "network connection lost"
+            description: "network connection lost",
           });
         };
         addEventListener("offline", this.offlineEventListener, false);
@@ -404,7 +412,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
         socket: this,
         hostname: this.hostname,
         secure: this.secure,
-        port: this.port
+        port: this.port,
       }
     );
 
@@ -472,7 +480,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
       .on("drain", this.onDrain.bind(this))
       .on("packet", this.onPacket.bind(this))
       .on("error", this.onError.bind(this))
-      .on("close", reason => this.onClose("transport close", reason));
+      .on("close", (reason) => this.onClose("transport close", reason));
   }
 
   /**
@@ -493,7 +501,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
 
       debug('probe transport "%s" opened', name);
       transport.send([{ type: "ping", data: "probe" }]);
-      transport.once("packet", msg => {
+      transport.once("packet", (msg) => {
         if (failed) return;
         if ("pong" === msg.type && "probe" === msg.data) {
           debug('probe transport "%s" pong', name);
@@ -540,7 +548,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
     }
 
     // Handle any error that happens while probing
-    const onerror = err => {
+    const onerror = (err) => {
       const error = new Error("probe error: " + err);
       // @ts-ignore
       error.transport = transport.name;
@@ -819,7 +827,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
     const packet = {
       type: type,
       data: data,
-      options: options
+      options: options,
     };
     this.emitReserved("packetCreate", packet);
     this.writeBuffer.push(packet);
