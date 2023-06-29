@@ -683,6 +683,7 @@ export class Socket extends Emitter<
           break;
 
         case "message":
+          this.resetPingTimeout();
           this.emitReserved("data", packet.data);
           this.emitReserved("message", packet.data);
           break;
