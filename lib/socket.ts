@@ -8,6 +8,8 @@ import { protocol } from "engine.io-parser";
 import type { Packet, BinaryType, PacketType, RawData } from "engine.io-parser";
 import { CloseDetails, Transport } from "./transport.js";
 import { defaultBinaryType } from "./transports/websocket-constructor.js";
+import {Agent as HttpAgent} from 'http';
+import {Agent as HttpsAgent} from 'https';
 
 const debug = debugModule("engine.io-client:socket"); // debug()
 
@@ -40,7 +42,7 @@ export interface SocketOptions {
   /**
    * `http.Agent` to use, defaults to `false` (NodeJS only)
    */
-  agent: string | boolean;
+  agent: string | boolean | HttpAgent | HttpsAgent;
 
   /**
    * Whether the client should try to upgrade the transport from
