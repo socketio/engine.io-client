@@ -5,6 +5,7 @@ import { installTimerFunctions } from "./util.js";
 import debugModule from "debug"; // debug()
 import { SocketOptions } from "./socket.js";
 import { encode } from "./contrib/parseqs.js";
+import { createUri } from "./createuri.js";
 
 const debug = debugModule("engine.io-client:transport"); // debug()
 
@@ -173,36 +174,7 @@ export abstract class Transport extends Emitter<
   public pause(onPause: () => void) {}
 
   protected createUri(schema: string, query: Record<string, unknown> = {}) {
-    return (
-      schema +
-      "://" +
-      this._hostname() +
-      this._port() +
-      this.opts.path +
-      this._query(query)
-    );
-  }
-
-  private _hostname() {
-    const hostname = this.opts.hostname;
-    return hostname.indexOf(":") === -1 ? hostname : "[" + hostname + "]";
-  }
-
-  private _port() {
-    if (
-      this.opts.port &&
-      ((this.opts.secure && Number(this.opts.port !== 443)) ||
-        (!this.opts.secure && Number(this.opts.port) !== 80))
-    ) {
-      return ":" + this.opts.port;
-    } else {
-      return "";
-    }
-  }
-
-  private _query(query: Record<string, unknown>) {
-    const encodedQuery = encode(query);
-    return encodedQuery.length ? "?" + encodedQuery : "";
+    return createUri(this.opts, schema, query);
   }
 
   protected abstract doOpen();

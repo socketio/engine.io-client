@@ -1,5 +1,5 @@
 /*!
- * Engine.IO v6.5.2
+ * Engine.IO v6.6.0
  * (c) 2014-2023 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -23,6 +23,42 @@
     }
 
     return _typeof(obj);
+  }
+
+  function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+    try {
+      var info = gen[key](arg);
+      var value = info.value;
+    } catch (error) {
+      reject(error);
+      return;
+    }
+
+    if (info.done) {
+      resolve(value);
+    } else {
+      Promise.resolve(value).then(_next, _throw);
+    }
+  }
+
+  function _asyncToGenerator(fn) {
+    return function () {
+      var self = this,
+          args = arguments;
+      return new Promise(function (resolve, reject) {
+        var gen = fn.apply(self, args);
+
+        function _next(value) {
+          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+        }
+
+        function _throw(err) {
+          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+        }
+
+        _next(undefined);
+      });
+    };
   }
 
   function _classCallCheck(instance, Constructor) {
@@ -895,6 +931,29 @@
     return qry;
   }
 
+  function createUri(opts, schema) {
+    var query = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    return schema + "://" + _hostname(opts) + _port(opts) + opts.path + _query(opts, query);
+  }
+
+  function _hostname(opts) {
+    var hostname = opts.hostname;
+    return hostname.indexOf(":") === -1 ? hostname : "[" + hostname + "]";
+  }
+
+  function _port(opts) {
+    if (opts.port && (opts.secure && Number(opts.port !== 443) || !opts.secure && Number(opts.port) !== 80)) {
+      return ":" + opts.port;
+    } else {
+      return "";
+    }
+  }
+
+  function _query(opts, query) {
+    var encodedQuery = encode$1(query);
+    return encodedQuery.length ? "?" + encodedQuery : "";
+  }
+
   var TransportError = /*#__PURE__*/function (_Error) {
     _inherits(TransportError, _Error);
 
@@ -1057,30 +1116,9 @@
       value: function pause(onPause) {}
     }, {
       key: "createUri",
-      value: function createUri(schema) {
+      value: function createUri$1(schema) {
         var query = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        return schema + "://" + this._hostname() + this._port() + this.opts.path + this._query(query);
-      }
-    }, {
-      key: "_hostname",
-      value: function _hostname() {
-        var hostname = this.opts.hostname;
-        return hostname.indexOf(":") === -1 ? hostname : "[" + hostname + "]";
-      }
-    }, {
-      key: "_port",
-      value: function _port() {
-        if (this.opts.port && (this.opts.secure && Number(this.opts.port !== 443) || !this.opts.secure && Number(this.opts.port) !== 80)) {
-          return ":" + this.opts.port;
-        } else {
-          return "";
-        }
-      }
-    }, {
-      key: "_query",
-      value: function _query(query) {
-        var encodedQuery = encode$1(query);
-        return encodedQuery.length ? "?" + encodedQuery : "";
+        return createUri(this.opts, schema, query);
       }
     }]);
 
@@ -1537,6 +1575,10 @@
             xhr.timeout = this.opts.requestTimeout;
           }
 
+          if (this.opts.accessToken) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + this.opts.accessToken);
+          }
+
           xhr.onreadystatechange = function () {
             var _a;
 
@@ -1838,6 +1880,11 @@
 
         if (!this.supportsBinary) {
           query.b64 = 1;
+        } // add auth if token is available
+
+
+        if (this.opts.accessToken) {
+          query["access_token"] = this.opts.accessToken;
         }
 
         return this.createUri(schema, query);
@@ -2056,6 +2103,110 @@
     return data;
   }
 
+  var NegotiateError = /*#__PURE__*/function (_Error) {
+    _inherits(NegotiateError, _Error);
+
+    var _super = _createSuper(NegotiateError);
+
+    function NegotiateError(reason, context) {
+      var _this;
+
+      _classCallCheck(this, NegotiateError);
+
+      _this = _super.call(this, reason);
+      _this.context = context;
+      _this.type = "NegotiateError";
+      return _this;
+    }
+
+    return NegotiateError;
+  }( /*#__PURE__*/_wrapNativeSuper(Error));
+
+  var Negotiate = /*#__PURE__*/function () {
+    /**
+     * Negotiate constructor.
+     *
+     * @param {Object} opts - options
+     * @protected
+     */
+    function Negotiate(opts) {
+      _classCallCheck(this, Negotiate);
+
+      this.opts = opts;
+      this.query = opts.query;
+    }
+    /**
+     * Start the negotiation
+     */
+
+
+    _createClass(Negotiate, [{
+      key: "start",
+      value: function () {
+        var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+          var uri, negotiateResult;
+          return regeneratorRuntime.wrap(function _callee$(_context) {
+            while (1) {
+              switch (_context.prev = _context.next) {
+                case 0:
+                  uri = this.uri();
+                  _context.next = 3;
+                  return fetch(uri);
+
+                case 3:
+                  negotiateResult = _context.sent;
+
+                  if (!(negotiateResult.status < 200 || negotiateResult.status >= 400)) {
+                    _context.next = 6;
+                    break;
+                  }
+
+                  throw new NegotiateError("Unexpected status code " + negotiateResult.status, negotiateResult);
+
+                case 6:
+                  _context.next = 8;
+                  return negotiateResult.json();
+
+                case 8:
+                  return _context.abrupt("return", _context.sent);
+
+                case 9:
+                case "end":
+                  return _context.stop();
+              }
+            }
+          }, _callee, this);
+        }));
+
+        function start() {
+          return _start.apply(this, arguments);
+        }
+
+        return start;
+      }()
+      /**
+       * Generates uri for negotiate.
+       *
+       * @private
+       */
+
+    }, {
+      key: "uri",
+      value: function uri() {
+        var schema = this.opts.secure ? "https" : "http";
+        var query = this.query || {};
+
+        var opts = _extends({}, this.opts, {
+          path: this.opts.negotiatePath
+        });
+
+        return createUri(opts, schema, query);
+      }
+    }]);
+
+    return Negotiate;
+  }();
+
   var Socket = /*#__PURE__*/function (_Emitter) {
     _inherits(Socket, _Emitter);
 
@@ -2122,6 +2273,7 @@
         closeOnBeforeunload: false
       }, opts);
       _this.opts.path = _this.opts.path.replace(/\/$/, "") + (_this.opts.addTrailingSlash ? "/" : "");
+      _this.path = _this.opts.path;
 
       if (typeof _this.opts.query === "string") {
         _this.opts.query = decode(_this.opts.query);
@@ -2163,7 +2315,7 @@
         }
       }
 
-      _this.open();
+      _this.negotiateAndOpen();
 
       return _this;
     }
@@ -2193,11 +2345,67 @@
           socket: this,
           hostname: this.hostname,
           secure: this.secure,
-          port: this.port
+          port: this.port,
+          path: this.path,
+          token: this.token
         }, this.opts.transportOptions[name]);
 
         return new transports[name](opts);
       }
+      /**
+       * Negotiate and decide the url and then open transport.
+       */
+
+    }, {
+      key: "negotiateAndOpen",
+      value: function () {
+        var _negotiateAndOpen = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+          var negotiate, negotiateResult, url;
+          return regeneratorRuntime.wrap(function _callee$(_context) {
+            while (1) {
+              switch (_context.prev = _context.next) {
+                case 0:
+                  if (!this.opts.negotiatePath) {
+                    _context.next = 7;
+                    break;
+                  }
+
+                  negotiate = new Negotiate(this.opts);
+                  _context.next = 4;
+                  return negotiate.start();
+
+                case 4:
+                  negotiateResult = _context.sent;
+
+                  // if url is set, we parse it and replace the original properties for transport
+                  // if not, there's not redirection.
+                  if (negotiateResult.url) {
+                    url = parse(negotiateResult.url);
+                    this.hostname = url.host;
+                    this.secure = url.protocol === "https" || url.protocol === "wss";
+                    this.port = url.port;
+                    this.path = url.path;
+                  }
+
+                  this.token = negotiateResult.token;
+
+                case 7:
+                  this.open();
+
+                case 8:
+                case "end":
+                  return _context.stop();
+              }
+            }
+          }, _callee, this);
+        }));
+
+        function negotiateAndOpen() {
+          return _negotiateAndOpen.apply(this, arguments);
+        }
+
+        return negotiateAndOpen;
+      }()
       /**
        * Initializes transport to use and starts probe.
        *

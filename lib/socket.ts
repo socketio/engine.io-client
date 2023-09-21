@@ -8,6 +8,7 @@ import { protocol } from "engine.io-parser";
 import type { Packet, BinaryType, PacketType, RawData } from "engine.io-parser";
 import { CloseDetails, Transport } from "./transport.js";
 import { defaultBinaryType } from "./transports/websocket-constructor.js";
+import { negotiate } from "./negotiate.js";
 
 const debug = debugModule("engine.io-client:socket"); // debug()
 
@@ -216,6 +217,20 @@ export interface SocketOptions {
    * @default []
    */
   protocols: string | string[];
+
+  /**
+   * The optional path for engine.io to negotiate with. If set, engine.io will fetch to the negotiatePath under hostname, and negotiation should
+   * response a JSON encoded object with url(required) and token(optional) parameters. The url will be used for the further transport connection.
+   * And token can be used for engine.io connection authentication. 
+   * It will becomes Authorization: Bearer [token] header in HTTP request or ?access_token=[token] in WebSocket
+   */
+  negotiatePath: string;
+
+  /**
+   * Token can be used for engine.io connection authentication. 
+   * It will becomes Authorization: Bearer [token] header in HTTP request or ?access_token=[token] in WebSocket
+   */
+  accessToken: string;
 }
 
 interface HandshakeData {
@@ -271,10 +286,12 @@ export class Socket extends Emitter<
   private maxPayload?: number;
 
   private readonly opts: Partial<SocketOptions>;
-  private readonly secure: boolean;
-  private readonly hostname: string;
-  private readonly port: string | number;
   private readonly transports: string[];
+  private secure: boolean;
+  private hostname: string;
+  private port: string | number;
+  private path: string;
+  private token: string;
 
   static priorWebsocketSuccess: boolean;
   static protocol = protocol;
@@ -357,6 +374,8 @@ export class Socket extends Emitter<
       this.opts.path.replace(/\/$/, "") +
       (this.opts.addTrailingSlash ? "/" : "");
 
+    this.path = this.opts.path;
+
     if (typeof this.opts.query === "string") {
       this.opts.query = decode(this.opts.query);
     }
@@ -394,7 +413,7 @@ export class Socket extends Emitter<
       }
     }
 
-    this.open();
+    this.negotiateAndOpen();
   }
 
   /**
@@ -426,13 +445,37 @@ export class Socket extends Emitter<
         hostname: this.hostname,
         secure: this.secure,
         port: this.port,
+        path: this.path,
+        token: this.token,
       },
-      this.opts.transportOptions[name]
+      this.opts.transportOptions[name],
     );
 
     debug("options: %j", opts);
 
     return new transports[name](opts);
+  }
+
+  /**
+   * Negotiate and decide the url and then open transport.
+   */
+  private async negotiateAndOpen() {
+    if (this.opts.negotiatePath) {
+      const negotiateResult = await negotiate(this.opts, this.opts.query);
+      
+      // if url is set, we parse it and replace the original properties for transport
+      // if not, there's not redirection.
+      if (negotiateResult.url) {
+        const url = parse(negotiateResult.url);
+        this.hostname = url.host;
+        this.secure = url.protocol === "https" || url.protocol === "wss";
+        this.port = url.port;
+        this.path = url.path;
+      }
+      this.token = negotiateResult.token;
+    }
+
+    this.open();
   }
 
   /**

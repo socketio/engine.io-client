@@ -370,6 +370,10 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
         xhr.timeout = this.opts.requestTimeout;
       }
 
+      if (this.opts.accessToken) {
+        xhr.setRequestHeader('Authorization','Bearer ' + this.opts.accessToken);
+      }
+      
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 3) {
           this.opts.cookieJar?.parseCookies(xhr);
