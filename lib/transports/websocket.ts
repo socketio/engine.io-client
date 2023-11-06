@@ -187,6 +187,11 @@ export class WS extends Transport {
       query.b64 = 1;
     }
 
+    // add auth if token is available
+    if (this.opts.accessToken) {
+      query["access_token"] = this.opts.accessToken;
+    }
+
     return this.createUri(schema, query);
   }
 
