@@ -1,5 +1,9 @@
 # History
 
+## 2024
+
+- [6.5.4](#654-2024-06-18) (Jun 2024) (from the [6.5.x](https://github.com/socketio/engine.io-client/tree/6.5<.x) branch)
+
 ## 2023
 
 - [6.5.3](#653-2023-11-09) (Nov 2023)
@@ -39,6 +43,19 @@
 - [4.1.0](#410-2021-01-14) (Jan 2021)
 
 # Release notes
+
+## [6.5.4](https://github.com/socketio/engine.io-client/compare/6.5.3...6.5.4) (2024-06-18)
+
+This release contains a bump of the `ws` dependency, which includes an important [security fix](https://github.com/websockets/ws/commit/e55e5106f10fcbaac37cfa89759e4cc0d073a52c).
+
+Advisory: https://github.com/advisories/GHSA-3h5v-q93c-6h6q
+
+
+### Dependencies
+
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) ([diff](https://github.com/websockets/ws/compare/8.11.0...8.17.1))
+
+
 
 ## [6.5.3](https://github.com/socketio/engine.io-client/compare/6.5.2...6.5.3) (2023-11-09)
 
