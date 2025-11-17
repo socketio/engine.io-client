@@ -1,3 +1,12 @@
+## [3.5.5](https://github.com/socketio/engine.io-client/compare/3.5.4...3.5.5) (2025-11-17)
+
+
+### Bug Fixes
+
+*  prevent infinite loop with Node.js built-in WebSocket ([ee468e6](https://github.com/socketio/engine.io-client/commit/ee468e681c71463a1699c9b108abae05e54241cf))
+
+
+
 ## [3.5.4](https://github.com/socketio/engine.io-client/compare/3.5.3...3.5.4) (2024-06-18)
 
 This release contains a bump of the `ws` dependency, which includes an important [security fix](https://github.com/websockets/ws/commit/e55e5106f10fcbaac37cfa89759e4cc0d073a52c).
