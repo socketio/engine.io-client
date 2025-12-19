@@ -1,3 +1,12 @@
+## [3.5.6](https://github.com/socketio/engine.io-client/compare/3.5.5...3.5.6) (2025-12-19)
+
+
+### Bug Fixes
+
+*  use ES3 syntax ([ab89342](https://github.com/socketio/engine.io-client/commit/ab893425fef898896144f8940dfdf771261ecebd))
+
+
+
 ## [3.5.5](https://github.com/socketio/engine.io-client/compare/3.5.4...3.5.5) (2025-11-17)
 
 

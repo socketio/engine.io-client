@@ -4543,7 +4543,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	WS.prototype.doClose = function () {
 	  if (typeof this.ws !== 'undefined') {
-	    this.ws.onerror = () => {};
+	    this.ws.onerror = function () {};
 	    this.ws.close();
 	  }
 	};
